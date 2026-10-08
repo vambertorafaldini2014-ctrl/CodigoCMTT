@@ -1,0 +1,12 @@
+# Configuração do deploy do site no Netlify (lida automaticamente a cada push no GitHub)
+[build]
+  base = "web"
+  publish = "."
+  command = "npm test"
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    X-Frame-Options = "SAMEORIGIN"

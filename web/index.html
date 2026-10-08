@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Busca nas atas — Buscador CMTT</title>
+  <meta name="description" content="Pesquise em todas as atas do Conselho Municipal de Trânsito e Transporte de São Paulo (CMTT).">
+  <link rel="icon" href="img/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="css/estilo.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js" defer></script>
+  <script type="module" src="js/acessibilidade.js"></script>
+  <script type="module" src="js/pagina-busca.js"></script>
+</head>
+<body>
+  <a class="pular-link" href="#conteudo">Pular para o conteúdo</a>
+
+  <div class="barra-acessibilidade">
+    <div class="container" role="group" aria-label="Opções de acessibilidade">
+      <button type="button" id="botao-diminuir" aria-label="Diminuir tamanho da fonte">A−</button>
+      <button type="button" id="botao-aumentar" aria-label="Aumentar tamanho da fonte">A+</button>
+      <button type="button" id="botao-contraste" aria-pressed="false">Alto contraste</button>
+      <a href="sobre.html#acessibilidade" style="color:inherit">Acessibilidade</a>
+      <span id="anuncio-acessibilidade" class="visualmente-oculto" aria-live="polite"></span>
+    </div>
+  </div>
+
+  <header class="topo">
+    <div class="container">
+      <a class="marca" href="index.html">
+        <span class="logos">
+          <img src="img/logo_prefeitura.png" alt="Prefeitura de São Paulo">
+          <img src="img/logo_cmtt.jpg" alt="CMTT">
+        </span>
+        <span class="marca-texto">
+          <strong>Buscador CMTT</strong>
+          <span>Conselho Municipal de Trânsito e Transporte</span>
+        </span>
+      </a>
+      <nav class="menu" aria-label="Menu principal">
+        <ul>
+          <li><a href="index.html" aria-current="page">Busca</a></li>
+          <li><a href="reunioes.html">Reuniões</a></li>
+          <li><a href="conselho.html">Conselho</a></li>
+          <li><a href="painel.html">Painel</a></li>
+          <li><a href="sobre.html">Sobre</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main id="conteudo" tabindex="-1">
+    <div class="container">
+      <h1>Busca nas atas do CMTT</h1>
+      <p class="subtitulo">Pesquise palavras, nomes ou assuntos em todas as atas do Conselho Pleno desde 2013.</p>
+
+      <form id="form-busca" class="cartao formulario" role="search" aria-label="Buscar nas atas">
+        <div class="linha-form">
+          <div class="campo grande">
+            <label for="campo-termo">O que você procura?</label>
+            <input type="search" id="campo-termo" name="q" required minlength="2" maxlength="200"
+                   autocomplete="off" aria-describedby="dica-termo" placeholder="Ex.: ciclovia, &quot;faixa exclusiva&quot;">
+          </div>
+          <div class="campo">
+            <label for="campo-ano">Ano</label>
+            <select id="campo-ano" name="ano">
+              <option value="">Todos os anos</option>
+            </select>
+          </div>
+          <button type="submit" class="botao">Pesquisar</button>
+        </div>
+        <p id="dica-termo" class="dica">
+          Dica: várias palavras encontram linhas que contêm todas elas, na ordem digitada.
+          Use aspas para uma frase exata. Acentos e maiúsculas são ignorados.
+        </p>
+      </form>
+
+      <p id="status" class="status" role="status" aria-live="polite"></p>
+
+      <section id="secao-tendencia" class="grafico" hidden aria-labelledby="titulo-tendencia">
+        <h2 id="titulo-tendencia">Ocorrências por ano</h2>
+        <div class="area"><canvas id="grafico-tendencia" role="img" aria-label="Gráfico de ocorrências do termo por ano"></canvas></div>
+        <details>
+          <summary>Ver dados do gráfico em tabela</summary>
+          <div class="tabela-rolagem" id="tabela-tendencia"></div>
+        </details>
+      </section>
+
+      <section id="secao-resultados" hidden aria-labelledby="titulo-resultados">
+        <div class="linha-form" style="justify-content: space-between; align-items: center;">
+          <h2 id="titulo-resultados">Resultados</h2>
+          <button type="button" id="botao-csv" class="botao secundario">Baixar resultados (CSV)</button>
+        </div>
+        <ol id="lista-resultados" class="lista-resultados"></ol>
+        <nav class="paginacao" aria-label="Paginação dos resultados">
+          <button type="button" id="botao-anterior" class="botao secundario">← Anterior</button>
+          <span id="info-pagina"></span>
+          <button type="button" id="botao-proxima" class="botao secundario">Próxima →</button>
+        </nav>
+      </section>
+    </div>
+  </main>
+
+  <footer class="rodape">
+    <div class="container">
+      <span>Projeto Integrador — UNIVESP</span>
+      <span>Dados: atas públicas do CMTT / Prefeitura de São Paulo</span>
+    </div>
+  </footer>
+</body>
+</html>

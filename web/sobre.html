@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sobre o projeto — Buscador CMTT</title>
+  <meta name="description" content="Sobre o Buscador CMTT: objetivo, tecnologias, acessibilidade e formulário de feedback.">
+  <link rel="icon" href="img/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="css/estilo.css">
+  <script type="module" src="js/acessibilidade.js"></script>
+  <script type="module" src="js/pagina-sobre.js"></script>
+</head>
+<body>
+  <a class="pular-link" href="#conteudo">Pular para o conteúdo</a>
+
+  <div class="barra-acessibilidade">
+    <div class="container" role="group" aria-label="Opções de acessibilidade">
+      <button type="button" id="botao-diminuir" aria-label="Diminuir tamanho da fonte">A−</button>
+      <button type="button" id="botao-aumentar" aria-label="Aumentar tamanho da fonte">A+</button>
+      <button type="button" id="botao-contraste" aria-pressed="false">Alto contraste</button>
+      <a href="sobre.html#acessibilidade" style="color:inherit">Acessibilidade</a>
+      <span id="anuncio-acessibilidade" class="visualmente-oculto" aria-live="polite"></span>
+    </div>
+  </div>
+
+  <header class="topo">
+    <div class="container">
+      <a class="marca" href="index.html">
+        <span class="logos">
+          <img src="img/logo_prefeitura.png" alt="Prefeitura de São Paulo">
+          <img src="img/logo_cmtt.jpg" alt="CMTT">
+        </span>
+        <span class="marca-texto">
+          <strong>Buscador CMTT</strong>
+          <span>Conselho Municipal de Trânsito e Transporte</span>
+        </span>
+      </a>
+      <nav class="menu" aria-label="Menu principal">
+        <ul>
+          <li><a href="index.html">Busca</a></li>
+          <li><a href="reunioes.html">Reuniões</a></li>
+          <li><a href="conselho.html">Conselho</a></li>
+          <li><a href="painel.html">Painel</a></li>
+          <li><a href="sobre.html" aria-current="page">Sobre</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main id="conteudo" tabindex="-1">
+    <div class="container">
+      <h1>Sobre o projeto</h1>
+      <p>
+        O <strong>Buscador CMTT</strong> torna pesquisáveis as atas do Conselho Municipal de Trânsito e
+        Transporte de São Paulo. Um pipeline em Python lê os PDFs publicados pela Prefeitura, extrai o texto e
+        a composição do Conselho, e carrega tudo em um banco de dados na nuvem. Este site consulta esses
+        dados por meio de uma API própria.
+      </p>
+
+      <h2>Como funciona</h2>
+      <div class="tabela-rolagem">
+        <table>
+          <caption>Arquitetura do sistema</caption>
+          <thead><tr><th scope="col">Camada</th><th scope="col">Tecnologia</th><th scope="col">Hospedagem</th></tr></thead>
+          <tbody>
+            <tr><td>Coleta e processamento (ETL)</td><td>Python, pdfplumber, spaCy</td><td>Máquina local</td></tr>
+            <tr><td>Banco de dados</td><td>PostgreSQL</td><td>Supabase</td></tr>
+            <tr><td>API REST</td><td>FastAPI (Python)</td><td>Render</td></tr>
+            <tr><td>Site</td><td>HTML, CSS e JavaScript, Chart.js</td><td>Netlify</td></tr>
+            <tr><td>Versionamento, testes e CI</td><td>Git, pytest, node:test</td><td>GitHub e GitHub Actions</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>A documentação interativa da API fica em <a id="link-docs" href="#">/docs</a>.</p>
+
+      <h2 id="acessibilidade">Acessibilidade</h2>
+      <p>O site foi feito seguindo as diretrizes WCAG 2.1 (nível AA) e o eMAG:</p>
+      <ul>
+        <li>Tradução para Libras com o <strong>VLibras</strong> (ícone azul no canto da tela).</li>
+        <li>Botões <strong>A+ / A−</strong> para ajustar o tamanho do texto e modo de <strong>alto contraste</strong>.</li>
+        <li>Navegação completa pelo teclado (Tab, Enter, Espaço) com foco sempre visível.</li>
+        <li>Link “Pular para o conteúdo” e regiões (cabeçalho, menu, conteúdo, rodapé) marcadas para leitores de tela.</li>
+        <li>Mensagens de carregamento e de resultados anunciadas automaticamente por leitores de tela.</li>
+        <li>Todo gráfico tem uma tabela equivalente com os mesmos dados.</li>
+        <li>Cores com contraste mínimo de 4,5:1, layout responsivo para celular e respeito à preferência por menos animações.</li>
+      </ul>
+
+      <h2 id="feedback">Envie sua opinião</h2>
+      <form id="form-feedback" class="cartao formulario" novalidate>
+        <div class="campo">
+          <label for="fb-nome">Nome (opcional)</label>
+          <input type="text" id="fb-nome" name="nome" maxlength="100" autocomplete="name">
+        </div>
+        <fieldset class="estrelas">
+          <legend>Avaliação (opcional)</legend>
+          <label><input type="radio" name="avaliacao" value="1"> 1 – Ruim</label>
+          <label><input type="radio" name="avaliacao" value="2"> 2</label>
+          <label><input type="radio" name="avaliacao" value="3"> 3</label>
+          <label><input type="radio" name="avaliacao" value="4"> 4</label>
+          <label><input type="radio" name="avaliacao" value="5"> 5 – Ótimo</label>
+        </fieldset>
+        <div class="campo">
+          <label for="fb-mensagem">Mensagem (obrigatória)</label>
+          <textarea id="fb-mensagem" name="mensagem" required minlength="3" maxlength="2000" aria-describedby="fb-erro"></textarea>
+          <p id="fb-erro" class="dica"></p>
+        </div>
+        <div><button type="submit" class="botao">Enviar</button></div>
+        <p id="status" class="status" role="status" aria-live="polite"></p>
+      </form>
+    </div>
+  </main>
+
+  <footer class="rodape">
+    <div class="container">
+      <span>Projeto Integrador — UNIVESP</span>
+      <span>Dados: atas públicas do CMTT / Prefeitura de São Paulo</span>
+    </div>
+  </footer>
+</body>
+</html>

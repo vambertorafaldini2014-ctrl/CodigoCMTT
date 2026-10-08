@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ata da reunião — Buscador CMTT</title>
+  <meta name="description" content="Texto completo e temas de uma ata do Conselho Municipal de Trânsito e Transporte.">
+  <link rel="icon" href="img/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="css/estilo.css">
+  <script type="module" src="js/acessibilidade.js"></script>
+  <script type="module" src="js/pagina-reuniao.js"></script>
+</head>
+<body>
+  <a class="pular-link" href="#conteudo">Pular para o conteúdo</a>
+
+  <div class="barra-acessibilidade">
+    <div class="container" role="group" aria-label="Opções de acessibilidade">
+      <button type="button" id="botao-diminuir" aria-label="Diminuir tamanho da fonte">A−</button>
+      <button type="button" id="botao-aumentar" aria-label="Aumentar tamanho da fonte">A+</button>
+      <button type="button" id="botao-contraste" aria-pressed="false">Alto contraste</button>
+      <a href="sobre.html#acessibilidade" style="color:inherit">Acessibilidade</a>
+      <span id="anuncio-acessibilidade" class="visualmente-oculto" aria-live="polite"></span>
+    </div>
+  </div>
+
+  <header class="topo">
+    <div class="container">
+      <a class="marca" href="index.html">
+        <span class="logos">
+          <img src="img/logo_prefeitura.png" alt="Prefeitura de São Paulo">
+          <img src="img/logo_cmtt.jpg" alt="CMTT">
+        </span>
+        <span class="marca-texto">
+          <strong>Buscador CMTT</strong>
+          <span>Conselho Municipal de Trânsito e Transporte</span>
+        </span>
+      </a>
+      <nav class="menu" aria-label="Menu principal">
+        <ul>
+          <li><a href="index.html">Busca</a></li>
+          <li><a href="reunioes.html" aria-current="page">Reuniões</a></li>
+          <li><a href="conselho.html">Conselho</a></li>
+          <li><a href="painel.html">Painel</a></li>
+          <li><a href="sobre.html">Sobre</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main id="conteudo" tabindex="-1">
+    <div class="container">
+      <p><a href="reunioes.html">← Voltar para a lista de reuniões</a></p>
+      <h1 id="titulo">Carregando ata…</h1>
+      <p id="status" class="status" role="status" aria-live="polite"></p>
+
+      <div id="detalhes" hidden>
+        <dl class="cartao" id="metadados" style="display:grid; grid-template-columns: max-content 1fr; gap: .25rem 1rem; margin: 0;"></dl>
+
+        <h2>Temas identificados</h2>
+        <p class="dica">Contagem de termos-chave de cada tema no texto da ata (análise automática).</p>
+        <ul id="temas" class="etiquetas"></ul>
+
+        <h2 id="titulo-texto">Texto da ata</h2>
+        <form class="formulario" id="form-filtro-texto" role="search" aria-label="Procurar dentro desta ata">
+          <div class="campo">
+            <label for="campo-filtro">Procurar neste texto</label>
+            <input type="search" id="campo-filtro" autocomplete="off" aria-describedby="contagem-filtro">
+            <p id="contagem-filtro" class="dica" aria-live="polite"></p>
+          </div>
+        </form>
+        <div id="texto-ata" class="texto-ata" tabindex="0" aria-labelledby="titulo-texto"></div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="rodape">
+    <div class="container">
+      <span>Projeto Integrador — UNIVESP</span>
+      <span>Dados: atas públicas do CMTT / Prefeitura de São Paulo</span>
+    </div>
+  </footer>
+</body>
+</html>

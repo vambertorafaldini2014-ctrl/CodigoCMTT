@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Painel de dados — Buscador CMTT</title>
+  <meta name="description" content="Análise de dados do CMTT: reuniões por ano, temas mais debatidos e composição do Conselho.">
+  <link rel="icon" href="img/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="css/estilo.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js" defer></script>
+  <script type="module" src="js/acessibilidade.js"></script>
+  <script type="module" src="js/pagina-painel.js"></script>
+</head>
+<body>
+  <a class="pular-link" href="#conteudo">Pular para o conteúdo</a>
+
+  <div class="barra-acessibilidade">
+    <div class="container" role="group" aria-label="Opções de acessibilidade">
+      <button type="button" id="botao-diminuir" aria-label="Diminuir tamanho da fonte">A−</button>
+      <button type="button" id="botao-aumentar" aria-label="Aumentar tamanho da fonte">A+</button>
+      <button type="button" id="botao-contraste" aria-pressed="false">Alto contraste</button>
+      <a href="sobre.html#acessibilidade" style="color:inherit">Acessibilidade</a>
+      <span id="anuncio-acessibilidade" class="visualmente-oculto" aria-live="polite"></span>
+    </div>
+  </div>
+
+  <header class="topo">
+    <div class="container">
+      <a class="marca" href="index.html">
+        <span class="logos">
+          <img src="img/logo_prefeitura.png" alt="Prefeitura de São Paulo">
+          <img src="img/logo_cmtt.jpg" alt="CMTT">
+        </span>
+        <span class="marca-texto">
+          <strong>Buscador CMTT</strong>
+          <span>Conselho Municipal de Trânsito e Transporte</span>
+        </span>
+      </a>
+      <nav class="menu" aria-label="Menu principal">
+        <ul>
+          <li><a href="index.html">Busca</a></li>
+          <li><a href="reunioes.html">Reuniões</a></li>
+          <li><a href="conselho.html">Conselho</a></li>
+          <li><a href="painel.html" aria-current="page">Painel</a></li>
+          <li><a href="sobre.html">Sobre</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main id="conteudo" tabindex="-1">
+    <div class="container">
+      <h1>Painel de dados</h1>
+      <p class="subtitulo">Indicadores calculados a partir das atas e da composição do Conselho. Cada gráfico tem uma tabela com os mesmos dados.</p>
+
+      <p id="status" class="status" role="status" aria-live="polite"></p>
+
+      <ul class="indicadores" id="indicadores" aria-label="Indicadores gerais"></ul>
+
+      <div class="grade-graficos">
+        <section class="grafico" aria-labelledby="t-reunioes">
+          <h2 id="t-reunioes">Reuniões por ano</h2>
+          <div class="area"><canvas id="g-reunioes" role="img" aria-label="Gráfico de barras: número de reuniões por ano, ordinárias e extraordinárias"></canvas></div>
+          <details><summary>Ver dados em tabela</summary><div class="tabela-rolagem" id="d-reunioes"></div></details>
+        </section>
+
+        <section class="grafico" aria-labelledby="t-temas">
+          <h2 id="t-temas">Temas mais debatidos</h2>
+          <div class="area"><canvas id="g-temas" role="img" aria-label="Gráfico de barras horizontais: menções a cada tema em todas as atas"></canvas></div>
+          <details><summary>Ver dados em tabela</summary><div class="tabela-rolagem" id="d-temas"></div></details>
+        </section>
+
+        <section class="grafico" aria-labelledby="t-evolucao">
+          <h2 id="t-evolucao">Evolução de um tema ao longo dos anos</h2>
+          <div class="campo" style="margin-bottom: .75rem">
+            <label for="seletor-tema">Tema</label>
+            <select id="seletor-tema"></select>
+          </div>
+          <div class="area"><canvas id="g-evolucao" role="img" aria-label="Gráfico de linha: menções ao tema selecionado por ano"></canvas></div>
+          <details><summary>Ver dados em tabela</summary><div class="tabela-rolagem" id="d-evolucao"></div></details>
+        </section>
+
+        <section class="grafico" aria-labelledby="t-genero">
+          <h2 id="t-genero">Participação feminina por mandato</h2>
+          <div class="area"><canvas id="g-genero" role="img" aria-label="Gráfico de barras empilhadas: conselheiras e conselheiros por mandato"></canvas></div>
+          <details><summary>Ver dados em tabela</summary><div class="tabela-rolagem" id="d-genero"></div></details>
+        </section>
+
+        <section class="grafico" aria-labelledby="t-segmentos">
+          <h2 id="t-segmentos">Cadeiras por segmento (mandato atual)</h2>
+          <div class="area"><canvas id="g-segmentos" role="img" aria-label="Gráfico de barras: número de cadeiras por segmento no mandato atual"></canvas></div>
+          <details><summary>Ver dados em tabela</summary><div class="tabela-rolagem" id="d-segmentos"></div></details>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <footer class="rodape">
+    <div class="container">
+      <span>Projeto Integrador — UNIVESP</span>
+      <span>Dados: atas públicas do CMTT / Prefeitura de São Paulo</span>
+    </div>
+  </footer>
+</body>
+</html>

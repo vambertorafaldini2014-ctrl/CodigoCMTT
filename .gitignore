@@ -21,3 +21,5 @@ dados/configs/.cache_corpus_atas.json
 # --- Segurança do Streamlit e Cofre ---
 .streamlit/secrets.toml
 .env
+node_modules/
+
