@@ -1,6 +1,5 @@
-# Configuração do deploy do site no Netlify (lida automaticamente a cada push no GitHub)
+# Configuração do deploy do site no Netlify (no painel: Base directory = web)
 [build]
-  base = "web"
   publish = "."
   command = "npm test"
 
