@@ -8,6 +8,55 @@ O CMTT Pipeline evoluiu para um modelo de **Explainable AI (XAI)** estruturado e
 
 ---
 
+## 🌐 Aplicação Web — Projeto Integrador (UNIVESP)
+
+[![Testes](https://github.com/vambertorafaldini2014-ctrl/CodigoCMTT/actions/workflows/ci.yml/badge.svg)](https://github.com/vambertorafaldini2014-ctrl/CodigoCMTT/actions/workflows/ci.yml)
+
+Camada web construída sobre o pipeline: os dados processados localmente são carregados em um banco na nuvem,
+expostos por uma API REST e consumidos por um site acessível.
+
+```
+PDFs ──► pipeline Python (local) ──► scripts/carregar_supabase.py ──► PostgreSQL (Supabase)
+                                                                          │
+                     Site HTML/CSS/JS (Netlify) ◄── JSON ── API FastAPI (Render)
+```
+
+| Requisito | Implementação |
+|---|---|
+| Framework web | **FastAPI** (`api/app/main.py`) — documentação automática em `/docs` |
+| Banco de dados | **PostgreSQL / Supabase** (`database/schema.sql`), busca com índice trigram (`pg_trgm`) |
+| Script web | **JavaScript** puro com módulos ES (`web/js/`), gráficos com Chart.js |
+| Nuvem | Supabase (banco), Render (API), Netlify (site) |
+| API | REST: `/api/busca`, `/api/reunioes`, `/api/mandatos`, `/api/conselheiros`, `/api/estatisticas`, `/api/feedback` |
+| Acessibilidade | WCAG 2.1 AA / eMAG: VLibras, alto contraste, ajuste de fonte, teclado, leitores de tela, tabelas equivalentes aos gráficos |
+| Controle de versão | Git + GitHub |
+| Testes | `pytest` (API) e `node --test` (JS), executados no GitHub Actions (`.github/workflows/ci.yml`) |
+| Análise de dados | Painel: reuniões/ano, temas mais debatidos, evolução de temas, gênero por mandato, segmentos, tendência de termos buscados |
+
+### Rodando localmente
+
+```bash
+# 1. API (precisa de DATABASE_URL no arquivo .env — veja .env.example)
+cd api
+python -m venv .venv
+.venv\Scripts\pip install -r requirements-dev.txt python-dotenv
+.venv\Scripts\python -m pytest                              # testes
+.venv\Scripts\python -m uvicorn app.main:app --port 8000    # http://localhost:8000/docs
+
+# 2. Carga do banco (na raiz do projeto)
+api\.venv\Scripts\python scripts\carregar_supabase.py
+
+# 3. Site (outro terminal)
+cd web
+npm test                                                    # testes do JavaScript
+python -m http.server 5500                                  # http://localhost:5500
+```
+
+> O plano gratuito do Render desliga a API após ~15 min sem uso; a primeira consulta seguinte pode levar até 1 minuto
+> (o site mostra um aviso enquanto isso).
+
+---
+
 ## ⚙️ Pré-requisitos e Instalação (Setup)
 
 Para garantir a reprodutibilidade do projeto em qualquer máquina, utilizamos um ambiente isolado.
