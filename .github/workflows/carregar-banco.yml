@@ -1,0 +1,40 @@
+# Recarrega o banco (Supabase) quando os dados do projeto mudam na branch main —
+# por exemplo, ao aprovar um Pull Request de atas novas. Também pode ser rodado manualmente.
+# Requer o segredo DATABASE_URL (Settings → Secrets and variables → Actions).
+name: Carregar banco
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "dados/configs/**"
+      - "database/schema.sql"
+      - "scripts/carregar_supabase.py"
+  workflow_dispatch:
+
+concurrency:
+  group: carregar-banco
+
+jobs:
+  carregar:
+    name: Carregar dados no Supabase
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: api/requirements.txt
+      - run: pip install -r api/requirements.txt python-dotenv==1.0.1
+      - name: Carregar
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          PYTHONIOENCODING: utf-8
+        run: |
+          if [ -z "$DATABASE_URL" ]; then
+            echo "::error::Cadastre o segredo DATABASE_URL em Settings → Secrets and variables → Actions."
+            exit 1
+          fi
+          python scripts/carregar_supabase.py | tee -a "$GITHUB_STEP_SUMMARY"
