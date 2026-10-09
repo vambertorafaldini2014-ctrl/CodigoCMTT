@@ -221,3 +221,19 @@ class Repositorio:
                 (nome, mensagem, avaliacao),
             )
             return cur.fetchone()[0]
+
+    def listar_feedback(self, avaliacao: int | None, limite: int, deslocamento: int) -> dict:
+        """Resumo geral (total, média, distribuição das notas) e a página de mensagens pedida."""
+        params = {"nota": avaliacao, "limite": limite, "deslocamento": deslocamento}
+        filtro = "where (%(nota)s::int is null or avaliacao = %(nota)s)"
+        resumo = self._um(
+            "select count(*) as total, round(avg(avaliacao), 2)::float as media from feedback")
+        return {
+            **resumo,
+            "distribuicao": self._todos(
+                "select avaliacao, count(*) as total from feedback group by avaliacao order by avaliacao nulls last"),
+            "total_filtrado": self._um(f"select count(*) as total from feedback {filtro}", params)["total"],
+            "itens": self._todos(
+                f"""select id, criado_em, nome, mensagem, avaliacao from feedback {filtro}
+                     order by criado_em desc limit %(limite)s offset %(deslocamento)s""", params),
+        }

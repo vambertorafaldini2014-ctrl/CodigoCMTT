@@ -28,6 +28,7 @@ export const PAGINAS = {
   'painel.html': 'painel.html',
   'sobre.html': 'sobre.html',
   '404.html': null,
+  'admin.html': null,
 };
 
 const PARTES = ['cabeca', 'topo', 'rodape'];

@@ -21,3 +21,5 @@ services:
         value: CodigoCMTT
       - key: CORS_ORIGINS
         value: "*"
+      - key: ADMIN_EMAILS
+        sync: false          # e-mails da equipe com acesso à área administrativa (separados por vírgula)

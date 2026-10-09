@@ -27,7 +27,7 @@ PDFs ──► pipeline Python (local) ──► scripts/carregar_supabase.py �
 | Banco de dados | **PostgreSQL / Supabase** (`database/schema.sql`): busca textual em português (`tsvector`, radicais e relevância) e busca exata com índice trigram (`pg_trgm`) |
 | Script web | **JavaScript** puro com módulos ES (`web/js/`), gráficos com Chart.js |
 | Nuvem | Supabase (banco), Render (API), Netlify (site) |
-| API | REST: `/api/busca`, `/api/reunioes`, `/api/mandatos`, `/api/conselheiros`, `/api/estatisticas`, `/api/feedback` |
+| API | REST: `/api/busca`, `/api/reunioes`, `/api/mandatos`, `/api/conselheiros`, `/api/estatisticas`, `/api/feedback` e, com login (Supabase Auth), `/api/admin/feedback` |
 | Acessibilidade | WCAG 2.1 AA / eMAG: VLibras, alto contraste, tema escuro, ajuste de fonte, teclado, leitores de tela, tabelas equivalentes aos gráficos |
 | Controle de versão | Git + GitHub |
 | Testes | `pytest` (API e qualidade dos dados), `node --test` (JS) e **Playwright + axe-core** (navegador e acessibilidade WCAG 2.1 AA, no computador e no celular), executados no GitHub Actions (`.github/workflows/ci.yml`) |
