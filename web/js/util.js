@@ -82,6 +82,16 @@ export function formatarData(iso) {
   return m ? `${m[3]}/${m[2]}/${m[1]}` : '—';
 }
 
+/** Data e hora de Brasília em texto curto: "2026-10-09T15:30:00Z" -> "09/10 às 12:30". */
+export function formatarDataHora(iso) {
+  const data = new Date(iso);
+  if (Number.isNaN(data.getTime())) return '—';
+  const partes = Object.fromEntries(new Intl.DateTimeFormat('pt-BR', {
+    timeZone: 'America/Sao_Paulo', day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false,
+  }).formatToParts(data).map(p => [p.type, p.value]));
+  return `${partes.day}/${partes.month} às ${partes.hour}:${partes.minute}`;
+}
+
 /** Formata números no padrão brasileiro: 52827 -> "52.827". */
 export function formatarNumero(n) {
   return Number(n ?? 0).toLocaleString('pt-BR');
