@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  destacar, destacarRadicais, escaparHtml, formatarData, formatarDataHora, montarQuery, normalizar, palavrasDoTermo, paraCsv, percentualMulheres, rotuloMandato,
+  destacar, destacarRadicais, escaparHtml, formatarData, formatarDataHora, montarQuery, normalizar, palavrasDoTermo, paraCsv, percentualMulheres, quebrarRotulo, rotuloMandato,
 } from '../js/util.js';
 
 test('escaparHtml neutraliza tags', () => {
@@ -75,6 +75,13 @@ test('percentualMulheres ignora gênero não informado e evita divisão por zero
   assert.equal(percentualMulheres({ feminino: 104, masculino: 70, nao_informado: 2 }), 60);
   assert.equal(percentualMulheres({ feminino: 0, masculino: 0 }), 0);
   assert.equal(percentualMulheres(), 0);
+});
+
+test('quebrarRotulo divide rótulos longos sem cortar palavras', () => {
+  assert.deepEqual(quebrarRotulo('Transporte Individual Privado (Táxis e Aplicativos)'),
+    ['Transporte Individual', 'Privado (Táxis e', 'Aplicativos)']);
+  assert.equal(quebrarRotulo('Curto'), 'Curto');
+  assert.equal(quebrarRotulo(''), '');
 });
 
 test('rotuloMandato deixa o código legível', () => {

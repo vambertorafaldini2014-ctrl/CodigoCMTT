@@ -3,8 +3,9 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Ata da reunião — Buscador CMTT</title>
-  <meta name="description" content="Texto completo e temas de uma ata do Conselho Municipal de Trânsito e Transporte.">
+  <base href="/">
+  <title>Página não encontrada — Buscador CMTT</title>
+  <meta name="description" content="O endereço acessado não existe no Buscador CMTT.">
   <!-- partes:cabeca -->
   <link rel="icon" href="img/favicon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="img/icone-192.png">
@@ -22,7 +23,6 @@
   <link rel="stylesheet" href="css/estilo.css">
   <script type="module" src="js/acessibilidade.js"></script>
   <!-- /partes:cabeca -->
-  <script type="module" src="js/pagina-reuniao.js"></script>
 </head>
 <body>
   <!-- partes:topo -->
@@ -54,7 +54,7 @@
       <nav class="menu" aria-label="Menu principal">
         <ul>
           <li><a href="index.html">Busca</a></li>
-          <li><a href="reunioes.html" aria-current="page">Reuniões</a></li>
+          <li><a href="reunioes.html">Reuniões</a></li>
           <li><a href="conselho.html">Conselho</a></li>
           <li><a href="painel.html">Painel</a></li>
           <li><a href="sobre.html">Sobre</a></li>
@@ -66,26 +66,15 @@
 
   <main id="conteudo" tabindex="-1">
     <div class="container">
-      <p><a href="reunioes.html">← Voltar para a lista de reuniões</a></p>
-      <h1 id="titulo">Carregando ata…</h1>
-      <p id="status" class="status" role="status" aria-live="polite"></p>
-
-      <div id="detalhes" hidden>
-        <dl class="cartao" id="metadados" style="display:grid; grid-template-columns: max-content 1fr; gap: .25rem 1rem; margin: 0;"></dl>
-
-        <h2>Temas identificados</h2>
-        <p class="dica">Contagem de termos-chave de cada tema no texto da ata (análise automática).</p>
-        <ul id="temas" class="etiquetas"></ul>
-
-        <h2 id="titulo-texto">Texto da ata</h2>
-        <form class="formulario" id="form-filtro-texto" role="search" aria-label="Procurar dentro desta ata">
-          <div class="campo">
-            <label for="campo-filtro">Procurar neste texto</label>
-            <input type="search" id="campo-filtro" autocomplete="off" aria-describedby="contagem-filtro">
-            <p id="contagem-filtro" class="dica" aria-live="polite"></p>
-          </div>
-        </form>
-        <div id="texto-ata" class="texto-ata" tabindex="0" aria-labelledby="titulo-texto"></div>
+      <h1>Página não encontrada</h1>
+      <p class="subtitulo">O endereço que você acessou não existe ou mudou de lugar.</p>
+      <div class="cartao">
+        <p>Você pode:</p>
+        <ul>
+          <li><a href="index.html">pesquisar nas atas</a>;</li>
+          <li><a href="reunioes.html">ver a lista de reuniões</a>;</li>
+          <li><a href="painel.html">abrir o painel de dados</a>.</li>
+        </ul>
       </div>
     </div>
   </main>
