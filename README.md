@@ -28,7 +28,7 @@ PDFs ──► pipeline Python (local) ──► scripts/carregar_supabase.py �
 | Script web | **JavaScript** puro com módulos ES (`web/js/`), gráficos com Chart.js |
 | Nuvem | Supabase (banco), Render (API), Netlify (site) |
 | API | REST: `/api/busca`, `/api/reunioes`, `/api/mandatos`, `/api/conselheiros`, `/api/estatisticas`, `/api/feedback` |
-| Acessibilidade | WCAG 2.1 AA / eMAG: VLibras, alto contraste, ajuste de fonte, teclado, leitores de tela, tabelas equivalentes aos gráficos |
+| Acessibilidade | WCAG 2.1 AA / eMAG: VLibras, alto contraste, tema escuro, ajuste de fonte, teclado, leitores de tela, tabelas equivalentes aos gráficos |
 | Controle de versão | Git + GitHub |
 | Testes | `pytest` (API e qualidade dos dados), `node --test` (JS) e **Playwright + axe-core** (navegador e acessibilidade WCAG 2.1 AA, no computador e no celular), executados no GitHub Actions (`.github/workflows/ci.yml`) |
 | Análise de dados | Painel: reuniões/ano, temas mais debatidos, evolução de temas, gênero por mandato, segmentos, tendência de termos buscados |
@@ -50,6 +50,7 @@ api\.venv\Scripts\python scripts\carregar_supabase.py
 cd web
 npm test                                                    # testes do JavaScript
 python -m http.server 5500                                  # http://localhost:5500
+node scripts/paginas.js                                     # aplica cabeçalho/menu/rodapé (web/partes) em todas as páginas
 
 # 4. Testes de navegador e acessibilidade (não precisam da API nem do banco: usam uma API simulada)
 cd e2e

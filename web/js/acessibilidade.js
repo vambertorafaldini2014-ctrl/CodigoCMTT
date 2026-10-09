@@ -1,4 +1,4 @@
-// Barra de acessibilidade: tamanho da fonte, alto contraste e VLibras (Libras).
+// Barra de acessibilidade: tamanho da fonte, alto contraste, tema escuro e VLibras (Libras).
 // As preferências ficam salvas no navegador (localStorage) só para conveniência.
 
 const CHAVE = 'cmtt-acessibilidade';
@@ -12,7 +12,14 @@ function salvarPreferencias(prefs) {
   try { localStorage.setItem(CHAVE, JSON.stringify(prefs)); } catch { /* modo privado */ }
 }
 
-const prefs = { fonte: 0, contraste: false, ...lerPreferencias() };
+const prefs = { fonte: 0, contraste: false, tema: 'auto', ...lerPreferencias() };
+
+// Tema: 'auto' segue o sistema operacional; 'claro' ou 'escuro' é a escolha feita no botão
+const sistemaEscuro = window.matchMedia?.('(prefers-color-scheme: dark)');
+
+export function temaEscuroAtivo() {
+  return prefs.tema === 'escuro' || (prefs.tema === 'auto' && !!sistemaEscuro?.matches);
+}
 
 function aplicar() {
   document.documentElement.style.fontSize = `${TAMANHOS[prefs.fonte]}%`;
@@ -20,6 +27,9 @@ function aplicar() {
   else delete document.documentElement.dataset.contraste;
   const botaoContraste = document.getElementById('botao-contraste');
   botaoContraste?.setAttribute('aria-pressed', String(prefs.contraste));
+  if (prefs.tema === 'auto') delete document.documentElement.dataset.tema;
+  else document.documentElement.dataset.tema = prefs.tema;
+  document.getElementById('botao-tema')?.setAttribute('aria-pressed', String(temaEscuroAtivo()));
   window.dispatchEvent(new CustomEvent('cmtt:tema'));
 }
 
@@ -46,6 +56,14 @@ document.getElementById('botao-contraste')?.addEventListener('click', () => {
   anunciar(prefs.contraste ? 'Alto contraste ativado' : 'Alto contraste desativado');
 });
 
+document.getElementById('botao-tema')?.addEventListener('click', () => {
+  prefs.tema = temaEscuroAtivo() ? 'claro' : 'escuro';
+  aplicar(); salvarPreferencias(prefs);
+  anunciar(prefs.tema === 'escuro' ? 'Tema escuro ativado' : 'Tema claro ativado');
+});
+
+sistemaEscuro?.addEventListener?.('change', aplicar);
+
 aplicar();
 
 // ---- VLibras: tradutor oficial do Governo Federal para Língua Brasileira de Sinais ----
@@ -68,7 +86,11 @@ carregarVLibras();
 /** Cores para os gráficos, acompanhando o modo de contraste. */
 export function coresGraficos() {
   const alto = document.documentElement.dataset.contraste === 'alto';
-  return alto
-    ? { texto: '#ffffff', grade: '#666666', serie: ['#ffeb3b', '#00e5ff', '#ff80ab', '#b9f6ca', '#ffffff', '#ffab40'] }
-    : { texto: '#1b2430', grade: '#e2e8f0', serie: ['#0b4f8a', '#d97706', '#0f766e', '#9333ea', '#be123c', '#4d7c0f', '#475569', '#0369a1', '#a16207', '#7c3aed'] };
+  if (alto) {
+    return { texto: '#ffffff', grade: '#666666', serie: ['#ffeb3b', '#00e5ff', '#ff80ab', '#b9f6ca', '#ffffff', '#ffab40'] };
+  }
+  if (temaEscuroAtivo()) {
+    return { texto: '#e6edf3', grade: '#2b3644', serie: ['#7cb7ff', '#f5a524', '#2dd4bf', '#c084fc', '#fb7185', '#a3e635', '#94a3b8', '#38bdf8', '#facc15', '#a78bfa'] };
+  }
+  return { texto: '#1b2430', grade: '#e2e8f0', serie: ['#0b4f8a', '#d97706', '#0f766e', '#9333ea', '#be123c', '#4d7c0f', '#475569', '#0369a1', '#a16207', '#7c3aed'] };
 }

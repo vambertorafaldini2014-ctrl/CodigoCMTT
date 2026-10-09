@@ -1,0 +1,32 @@
+  <a class="pular-link" href="#conteudo">Pular para o conteúdo</a>
+
+  <div class="barra-acessibilidade">
+    <div class="container" role="group" aria-label="Opções de acessibilidade">
+      <button type="button" id="botao-diminuir" aria-label="Diminuir tamanho da fonte">A−</button>
+      <button type="button" id="botao-aumentar" aria-label="Aumentar tamanho da fonte">A+</button>
+      <button type="button" id="botao-contraste" aria-pressed="false">Alto contraste</button>
+      <button type="button" id="botao-tema" aria-pressed="false">Tema escuro</button>
+      <a href="sobre.html#acessibilidade" style="color:inherit">Acessibilidade</a>
+      <span id="anuncio-acessibilidade" class="visualmente-oculto" aria-live="polite"></span>
+    </div>
+  </div>
+
+  <header class="topo">
+    <div class="container">
+      <a class="marca" href="index.html">
+        <span class="logos">
+          <img src="img/logo_prefeitura.png" alt="Prefeitura de São Paulo">
+          <img src="img/logo_cmtt.jpg" alt="CMTT">
+        </span>
+        <span class="marca-texto">
+          <strong>Buscador CMTT</strong>
+          <span>Conselho Municipal de Trânsito e Transporte</span>
+        </span>
+      </a>
+      <nav class="menu" aria-label="Menu principal">
+        <ul>
+{{menu}}
+        </ul>
+      </nav>
+    </div>
+  </header>

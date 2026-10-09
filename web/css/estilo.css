@@ -11,12 +11,16 @@
   --primaria-escura: #083a66;
   --primaria-clara: #e3eefa;
   --borda: #cfd8e3;
+  --borda-campo: #7a8796;      /* contorno de campos: mínimo 3:1 (WCAG 1.4.11) */
   --destaque-fundo: #ffe58a;
   --destaque-texto: #1b2430;
   --erro: #a61b1b;
   --sucesso: #1d6b35;
   --foco: #c75000;
   --sombra: 0 1px 3px rgba(16, 24, 40, .08), 0 1px 2px rgba(16, 24, 40, .04);
+  --sobre-primaria: #ffffff;   /* texto sobre botões e itens na cor primária */
+  --barra-fundo: #083a66;      /* barra de acessibilidade */
+  --barra-texto: #ffffff;
   --raio: 10px;
   --largura: 1100px;
   color-scheme: light;
@@ -32,6 +36,7 @@ html[data-contraste="alto"] {
   --primaria-escura: #ffeb3b;
   --primaria-clara: #1a1a1a;
   --borda: #fff;
+  --borda-campo: #fff;
   --destaque-fundo: #ffeb3b;
   --destaque-texto: #000;
   --erro: #ff8a80;
@@ -43,6 +48,27 @@ html[data-contraste="alto"] {
 html[data-contraste="alto"] a { text-decoration: underline; }
 html[data-contraste="alto"] .botao { color: #000; }
 html[data-contraste="alto"] .logos { background: #fff; }
+
+/* Tema escuro: segue o sistema (prefers-color-scheme) ou a escolha do botão "Tema escuro".
+   O alto contraste tem prioridade sobre os dois. */
+@media (prefers-color-scheme: dark) {
+  html:not([data-tema="claro"]):not([data-contraste="alto"]) {
+    --fundo: #0f141a; --superficie: #18202a; --texto: #e6edf3; --texto-suave: #b3bdc8;
+    --primaria: #7cb7ff; --primaria-escura: #a9d0ff; --primaria-clara: #1d2b3a; --borda: #344150; --borda-campo: #8494a5;
+    --destaque-fundo: #ffe58a; --destaque-texto: #1b2430; --erro: #ff9a8f; --sucesso: #7ee2a0;
+    --foco: #ffb86b; --sombra: none; --sobre-primaria: #0f141a; --barra-fundo: #0b1d30; --barra-texto: #e6edf3;
+    color-scheme: dark;
+  }
+}
+html[data-tema="escuro"]:not([data-contraste="alto"]) {
+  --fundo: #0f141a; --superficie: #18202a; --texto: #e6edf3; --texto-suave: #b3bdc8;
+  --primaria: #7cb7ff; --primaria-escura: #a9d0ff; --primaria-clara: #1d2b3a; --borda: #344150; --borda-campo: #8494a5;
+  --destaque-fundo: #ffe58a; --destaque-texto: #1b2430; --erro: #ff9a8f; --sucesso: #7ee2a0;
+  --foco: #ffb86b; --sombra: none; --sobre-primaria: #0f141a; --barra-fundo: #0b1d30; --barra-texto: #e6edf3;
+  color-scheme: dark;
+}
+/* Os logotipos oficiais têm fundo claro: mantém uma moldura branca no tema escuro */
+html:not([data-contraste="alto"]) .logos { background: #fff; }
 
 *, *::before, *::after { box-sizing: border-box; }
 
@@ -75,16 +101,16 @@ img { max-width: 100%; height: auto; }
 /* ---------- Link "pular para o conteúdo" ---------- */
 .pular-link {
   position: absolute; left: 1rem; top: -100px;
-  background: var(--primaria); color: #fff;
+  background: var(--primaria); color: var(--sobre-primaria);
   padding: .75rem 1rem; border-radius: 0 0 8px 8px;
   z-index: 1000; font-weight: 700;
 }
-.pular-link:focus { top: 0; color: #fff; }
+.pular-link:focus { top: 0; color: var(--sobre-primaria); }
 
 /* ---------- Barra de acessibilidade ---------- */
 .barra-acessibilidade {
-  background: var(--primaria-escura);
-  color: #fff;
+  background: var(--barra-fundo);
+  color: var(--barra-texto);
   font-size: .875rem;
 }
 html[data-contraste="alto"] .barra-acessibilidade { background: #000; border-bottom: 1px solid #fff; }
@@ -93,13 +119,13 @@ html[data-contraste="alto"] .barra-acessibilidade { background: #000; border-bot
   padding-block: .35rem;
 }
 .barra-acessibilidade button {
-  background: transparent; color: #fff;
+  background: transparent; color: var(--barra-texto);
   border: 1px solid rgba(255,255,255,.6);
   border-radius: 6px; padding: .25rem .6rem; font: inherit; cursor: pointer;
 }
 html[data-contraste="alto"] .barra-acessibilidade button { color: #ffeb3b; border-color: #ffeb3b; }
 .barra-acessibilidade button:hover { background: rgba(255,255,255,.15); }
-.barra-acessibilidade button[aria-pressed="true"] { background: #fff; color: var(--primaria-escura); }
+.barra-acessibilidade button[aria-pressed="true"] { background: var(--barra-texto); color: var(--barra-fundo); }
 html[data-contraste="alto"] .barra-acessibilidade button[aria-pressed="true"] { background: #ffeb3b; color: #000; }
 
 /* ---------- Layout ---------- */
@@ -119,7 +145,7 @@ html[data-contraste="alto"] .barra-acessibilidade button[aria-pressed="true"] { 
   text-decoration: none; color: var(--texto); font-weight: 600;
 }
 .menu a:hover { background: var(--primaria-clara); }
-.menu a[aria-current="page"] { background: var(--primaria); color: #fff; }
+.menu a[aria-current="page"] { background: var(--primaria); color: var(--sobre-primaria); }
 html[data-contraste="alto"] .menu a[aria-current="page"] { color: #000; }
 
 main { padding-block: 2rem 3rem; }
@@ -148,17 +174,17 @@ label { font-weight: 600; }
 
 input[type="search"], input[type="text"], select, textarea {
   font: inherit; color: var(--texto); background: var(--superficie);
-  border: 2px solid var(--borda); border-radius: 8px; padding: .6rem .75rem; width: 100%;
+  border: 2px solid var(--borda-campo); border-radius: 8px; padding: .6rem .75rem; width: 100%;
 }
 input:focus, select:focus, textarea:focus { border-color: var(--primaria); }
 textarea { min-height: 120px; resize: vertical; }
 
 .botao {
   font: inherit; font-weight: 700; cursor: pointer;
-  background: var(--primaria); color: #fff; border: 2px solid var(--primaria);
+  background: var(--primaria); color: var(--sobre-primaria); border: 2px solid var(--primaria);
   border-radius: 8px; padding: .6rem 1.25rem; text-decoration: none; display: inline-block;
 }
-.botao:hover { background: var(--primaria-escura); border-color: var(--primaria-escura); color: #fff; }
+.botao:hover { background: var(--primaria-escura); border-color: var(--primaria-escura); color: var(--sobre-primaria); }
 .botao.secundario { background: transparent; color: var(--primaria); }
 .botao.secundario:hover { background: var(--primaria-clara); color: var(--primaria-escura); }
 .botao:disabled { opacity: .55; cursor: not-allowed; }
@@ -202,6 +228,7 @@ tbody tr:hover { background: var(--primaria-clara); }
 .grafico { background: var(--superficie); border: 1px solid var(--borda); border-radius: var(--raio); padding: 1.25rem; }
 .grafico h2 { margin-top: 0; font-size: 1.15rem; }
 .grafico .area { position: relative; height: 320px; }
+.grafico .area.alta { height: 480px; }
 .grafico details { margin-top: .75rem; }
 .grafico summary { cursor: pointer; font-weight: 600; color: var(--primaria); }
 
