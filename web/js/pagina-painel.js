@@ -1,6 +1,6 @@
 import { api } from './api.js';
 import { coresGraficos } from './acessibilidade.js';
-import { escaparHtml, formatarNumero, percentualMulheres, rotuloMandato } from './util.js';
+import { escaparHtml, formatarDataHora, formatarNumero, percentualMulheres, rotuloMandato } from './util.js';
 
 const status = document.getElementById('status');
 const seletorTema = document.getElementById('seletor-tema');
@@ -115,15 +115,42 @@ function desenharTudo() {
 seletorTema.addEventListener('change', desenharEvolucao);
 window.addEventListener('cmtt:tema', () => { if (dados) desenharTudo(); });
 
+// Cópia local das últimas estatísticas: aparece na hora enquanto a API (plano gratuito) acorda.
+const CHAVE_CACHE = 'cmtt-estatisticas';
+
+function lerCache() {
+  try { return JSON.parse(localStorage.getItem(CHAVE_CACHE)); } catch { return null; }
+}
+
+function salvarCache(valor) {
+  try { localStorage.setItem(CHAVE_CACHE, JSON.stringify({ salvoEm: new Date().toISOString(), dados: valor })); } catch { /* modo privado */ }
+}
+
+function mostrar(novos) {
+  dados = novos;
+  const temaAtual = seletorTema.value;
+  seletorTema.replaceChildren(...dados.temas.map(t => new Option(t.tema, t.tema)));
+  if (dados.temas.some(t => t.tema === temaAtual)) seletorTema.value = temaAtual;
+  desenharTudo();
+}
+
 (async () => {
-  status.textContent = 'Carregando indicadores…';
+  const cache = lerCache();
+  if (cache?.dados) {
+    mostrar(cache.dados);
+    status.textContent = `Mostrando dados salvos em ${formatarDataHora(cache.salvoEm)}. Atualizando…`;
+  } else {
+    status.textContent = 'Carregando indicadores…';
+  }
   try {
-    dados = await api.estatisticas();
-    for (const t of dados.temas) seletorTema.add(new Option(t.tema, t.tema));
-    desenharTudo();
+    const novos = await api.estatisticas();
+    salvarCache(novos);
+    mostrar(novos);
     status.textContent = '';
   } catch (e) {
-    status.textContent = e.message;
     status.className = 'status erro';
+    status.textContent = cache?.dados
+      ? `Não foi possível atualizar agora. Mostrando dados salvos em ${formatarDataHora(cache.salvoEm)}.`
+      : e.message;
   }
 })();

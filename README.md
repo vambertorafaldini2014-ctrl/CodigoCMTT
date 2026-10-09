@@ -59,7 +59,8 @@ npx playwright test                                         # relatório: npx pl
 ```
 
 > O plano gratuito do Render desliga a API após ~15 min sem uso; a primeira consulta seguinte pode levar até 1 minuto
-> (o site mostra um aviso enquanto isso).
+> (o site mostra um aviso enquanto isso). Para evitar a espera, o workflow `.github/workflows/manter-api-acordada.yml`
+> acessa a API a cada 14 minutos das 7h às 20h (Brasília), e o Painel mostra na hora os últimos dados salvos no navegador.
 
 ---
 
