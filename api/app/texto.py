@@ -58,6 +58,25 @@ def tipo_reuniao(titulo: str) -> str:
     return "Ordinária"
 
 
+def pessoas_da_cadeira(cadeira: dict) -> list[tuple[dict, str]]:
+    """
+    Titulares e suplentes de uma cadeira, sem repetições: a planilha às vezes lista a mesma
+    pessoa duas vezes na mesma função (ou com grafia diferente só nos acentos).
+    """
+    vistos, resultado = set(), []
+    for funcao, chave in (("TITULAR", "titulares"), ("SUPLENTE", "suplentes")):
+        for pessoa in cadeira.get(chave) or []:
+            nome = (pessoa.get("nome") or "").strip()
+            if not nome:
+                continue
+            identidade = (funcao, normalizar(nome))
+            if nome != "VAGO" and identidade in vistos:
+                continue
+            vistos.add(identidade)
+            resultado.append((pessoa, funcao))
+    return resultado
+
+
 def contar_temas(linhas: list[str], dicionario: dict[str, list[str]]) -> dict[str, int]:
     """Conta quantas vezes os termos de cada tema aparecem no texto (início de palavra)."""
     texto = "\n".join(linhas).lower()

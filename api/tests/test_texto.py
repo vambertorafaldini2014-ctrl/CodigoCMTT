@@ -2,7 +2,7 @@ from datetime import date
 
 import pytest
 
-from app.texto import contar_temas, normalizar, padrao_like, periodo_mandato, tipo_reuniao
+from app.texto import contar_temas, normalizar, padrao_like, periodo_mandato, pessoas_da_cadeira, tipo_reuniao
 
 
 def test_normalizar_remove_acentos_e_espacos():
@@ -52,6 +52,26 @@ def test_periodo_mandato_invalido():
 ])
 def test_tipo_reuniao(titulo, esperado):
     assert tipo_reuniao(titulo) == esperado
+
+
+def test_pessoas_da_cadeira_remove_repeticoes_na_mesma_funcao():
+    cadeira = {
+        "titulares": [{"nome": "Monique Garrido"}, {"nome": "Monique Garrido"}, {"nome": "André Luis Pina"},
+                      {"nome": "André Luís Pina"}],
+        "suplentes": [{"nome": "Monique Garrido"}, {"nome": "VAGO"}, {"nome": "VAGO"}, {"nome": "  "}],
+    }
+    resultado = [(p["nome"], funcao) for p, funcao in pessoas_da_cadeira(cadeira)]
+    assert resultado == [
+        ("Monique Garrido", "TITULAR"),
+        ("André Luis Pina", "TITULAR"),
+        ("Monique Garrido", "SUPLENTE"),  # mesma pessoa em outra função continua registrada
+        ("VAGO", "SUPLENTE"),
+        ("VAGO", "SUPLENTE"),             # vagas não são pessoas: cada uma é mantida
+    ]
+
+
+def test_pessoas_da_cadeira_sem_listas():
+    assert pessoas_da_cadeira({"titulares": None}) == []
 
 
 def test_contar_temas():

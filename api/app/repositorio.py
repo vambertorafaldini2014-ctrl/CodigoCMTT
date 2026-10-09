@@ -87,7 +87,7 @@ class Repositorio:
             """
             select m.id, m.codigo, m.inicio, m.fim,
                    count(distinct c.id) as cadeiras,
-                   count(distinct p.id) filter (where p.nome <> 'VAGO') as conselheiros,
+                   count(distinct p.nome_norm) filter (where p.nome <> 'VAGO') as conselheiros,
                    (select count(*) from reunioes r where r.mandato_id = m.id) as reunioes
               from mandatos m
               left join cadeiras c on c.mandato_id = m.id
@@ -166,11 +166,15 @@ class Repositorio:
                  group by r.ano, t.tema order by r.ano
                 """
             ),
+            # Conta PESSOAS distintas (não registros): quem foi titular e suplente,
+            # ou ocupou duas cadeiras no mesmo mandato, conta uma vez só.
             "genero_por_mandato": self._todos(
                 """
                 select m.codigo as mandato,
-                       count(*) filter (where p.genero = 'F') as feminino,
-                       count(*) filter (where p.genero = 'M') as masculino
+                       count(distinct p.nome_norm) filter (where p.genero = 'F') as feminino,
+                       count(distinct p.nome_norm) filter (where p.genero = 'M') as masculino,
+                       count(distinct p.nome_norm) filter (where p.genero is null) as nao_informado,
+                       (select count(*) from cadeiras c2 where c2.mandato_id = m.id) as cadeiras
                   from mandatos m
                   join cadeiras c on c.mandato_id = m.id
                   join conselheiros p on p.cadeira_id = c.id and p.nome <> 'VAGO'

@@ -25,7 +25,7 @@ sys.path.insert(0, RAIZ)
 import psycopg  # noqa: E402
 from dotenv import load_dotenv  # noqa: E402
 
-from app.texto import contar_temas, normalizar, periodo_mandato, tipo_reuniao  # noqa: E402
+from app.texto import contar_temas, normalizar, periodo_mandato, pessoas_da_cadeira, tipo_reuniao  # noqa: E402
 from core.config_ambiente import DICIONARIO_TEMAS  # noqa: E402
 
 CONFIGS = os.path.join(RAIZ, "dados", "configs")
@@ -75,13 +75,11 @@ def main():
                     "insert into cadeiras (mandato_id, segmento, orgao, cadeira) values (%s, %s, %s, %s) returning id",
                     (mandato_id, cad["segmento"], cad["nome_orgao_exibicao"], cad.get("cadeira_padronizada"))
                 ).fetchone()[0]
-                pessoas = [(p, "TITULAR") for p in cad.get("titulares", [])] + \
-                          [(p, "SUPLENTE") for p in cad.get("suplentes", [])]
                 with conn.cursor() as cur:
                     cur.executemany(
                         "insert into conselheiros (cadeira_id, nome, nome_norm, genero, funcao) values (%s, %s, %s, %s, %s)",
-                        [(cadeira_id, p["nome"], normalizar(p["nome"]), (p.get("genero") or None), funcao)
-                         for p, funcao in pessoas if p.get("nome")])
+                        [(cadeira_id, p["nome"].strip(), normalizar(p["nome"]), (p.get("genero") or None), funcao)
+                         for p, funcao in pessoas_da_cadeira(cad)])
 
         def mandato_da_data(data):
             for mandato_id, inicio, fim in mandatos:
