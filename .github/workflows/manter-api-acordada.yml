@@ -1,0 +1,32 @@
+# Mantém a API do Render "acordada" em horário comercial.
+# No plano gratuito, o Render desliga o serviço após ~15 min sem acessos e a primeira
+# consulta seguinte demora até 1 minuto. Um acesso a cada 14 minutos evita isso.
+#
+# Horário: das 10h às 22h59 UTC = das 7h às 19h59 em Brasília, todos os dias
+# (~14 h/dia × 31 dias ≈ 430 h/mês, dentro das 750 h gratuitas do Render).
+# Obs.: o agendamento do GitHub pode atrasar alguns minutos em horários de pico.
+name: Manter API acordada
+
+on:
+  schedule:
+    - cron: "*/14 10-22 * * *"
+  workflow_dispatch:
+
+jobs:
+  ping:
+    name: Acessar /api/saude
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Chamar a API (com até 3 tentativas)
+        run: |
+          for tentativa in 1 2 3; do
+            resposta=$(curl -sS --max-time 90 https://cmtt-api.onrender.com/api/saude) && {
+              echo "Resposta: $resposta"
+              echo "API respondeu: \`$resposta\`" >> "$GITHUB_STEP_SUMMARY"
+              exit 0
+            }
+            echo "Tentativa $tentativa falhou; aguardando 20 s"
+            sleep 20
+          done
+          echo "::warning::A API não respondeu após 3 tentativas"

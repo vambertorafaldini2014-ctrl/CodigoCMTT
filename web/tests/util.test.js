@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  destacar, destacarRadicais, escaparHtml, formatarData, montarQuery, normalizar, palavrasDoTermo, paraCsv, percentualMulheres, rotuloMandato,
+  destacar, destacarRadicais, escaparHtml, formatarData, formatarDataHora, montarQuery, normalizar, palavrasDoTermo, paraCsv, percentualMulheres, rotuloMandato,
 } from '../js/util.js';
 
 test('escaparHtml neutraliza tags', () => {
@@ -53,6 +53,12 @@ test('destacarRadicais sem radicais apenas escapa', () => {
 test('formatarData converte ISO para dd/mm/aaaa', () => {
   assert.equal(formatarData('2024-03-01'), '01/03/2024');
   assert.equal(formatarData(null), '—');
+});
+
+test('formatarDataHora usa o horário de Brasília', () => {
+  assert.equal(formatarDataHora('2026-10-09T15:30:00Z'), '09/10 às 12:30');
+  assert.equal(formatarDataHora('2026-01-01T02:05:00Z'), '31/12 às 23:05');
+  assert.equal(formatarDataHora('invalida'), '—');
 });
 
 test('montarQuery ignora valores vazios', () => {
