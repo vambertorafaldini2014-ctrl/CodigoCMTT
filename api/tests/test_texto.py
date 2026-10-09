@@ -2,7 +2,8 @@ from datetime import date
 
 import pytest
 
-from app.texto import contar_temas, normalizar, padrao_like, periodo_mandato, pessoas_da_cadeira, tipo_reuniao
+from app.texto import (contar_temas, normalizar, padrao_like, palavras_para_destaque, periodo_mandato,
+                       pessoas_da_cadeira, tipo_reuniao)
 
 
 def test_normalizar_remove_acentos_e_espacos():
@@ -29,6 +30,11 @@ def test_padrao_like_escapa_curingas():
 @pytest.mark.parametrize("termo", ["", " ", "a", '""', '"x"'])
 def test_padrao_like_termo_curto_retorna_none(termo):
     assert padrao_like(termo) is None
+
+
+def test_palavras_para_destaque():
+    assert palavras_para_destaque('Ônibus -Paulista OR "Faixa Exclusiva"') == "onibus faixa exclusiva"
+    assert palavras_para_destaque("-tudo") == ""
 
 
 def test_periodo_mandato():

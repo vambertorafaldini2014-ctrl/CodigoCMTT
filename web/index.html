@@ -68,10 +68,29 @@
           </div>
           <button type="submit" class="botao">Pesquisar</button>
         </div>
-        <p id="dica-termo" class="dica">
-          Dica: várias palavras encontram linhas que contêm todas elas, na ordem digitada.
-          Use aspas para uma frase exata. Acentos e maiúsculas são ignorados.
-        </p>
+        <div class="linha-form">
+          <div class="campo">
+            <label for="campo-modo">Tipo de busca</label>
+            <select id="campo-modo" name="modo" aria-describedby="dica-termo">
+              <option value="inteligente">Inteligente (plurais e variações)</option>
+              <option value="exato">Texto exato</option>
+            </select>
+          </div>
+          <div class="campo">
+            <label for="campo-ordem">Ordenar por</label>
+            <select id="campo-ordem" name="ordem">
+              <option value="relevancia">Mais relevantes</option>
+              <option value="data">Mais recentes</option>
+            </select>
+          </div>
+        </div>
+        <div id="dica-termo" class="dica">
+          <p style="margin:0"><strong>Inteligente:</strong> “ciclovias” também encontra “ciclovia”. Use
+            <code>"frase exata"</code>, <code>-palavra</code> para excluir e <code>OR</code> para alternativas
+            (ex.: <code>ônibus -fretado</code>, <code>táxi OR aplicativo</code>).</p>
+          <p style="margin:0"><strong>Texto exato:</strong> encontra linhas com as palavras na ordem digitada.
+            Acentos e maiúsculas são sempre ignorados.</p>
+        </div>
       </form>
 
       <p id="status" class="status" role="status" aria-live="polite"></p>

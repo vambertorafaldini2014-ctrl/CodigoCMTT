@@ -57,6 +57,12 @@ create table if not exists linhas_ata (
 create index if not exists idx_linhas_reuniao on linhas_ata (reuniao_id, ordem);
 create index if not exists idx_linhas_trgm on linhas_ata using gin (texto_norm gin_trgm_ops);
 
+-- Busca textual em português (radicais: "ciclovias" encontra "ciclovia"), calculada pelo
+-- próprio Postgres a partir do texto já sem acentos.
+alter table linhas_ata add column if not exists busca tsvector
+    generated always as (to_tsvector('portuguese', texto_norm)) stored;
+create index if not exists idx_linhas_busca on linhas_ata using gin (busca);
+
 -- Temas identificados em cada reunião (análise de dados)
 create table if not exists temas_reuniao (
     reuniao_id  int not null references reunioes(id) on delete cascade,

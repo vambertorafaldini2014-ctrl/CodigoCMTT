@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  destacar, escaparHtml, formatarData, montarQuery, normalizar, palavrasDoTermo, paraCsv, percentualMulheres, rotuloMandato,
+  destacar, destacarRadicais, escaparHtml, formatarData, montarQuery, normalizar, palavrasDoTermo, paraCsv, percentualMulheres, rotuloMandato,
 } from '../js/util.js';
 
 test('escaparHtml neutraliza tags', () => {
@@ -34,6 +34,20 @@ test('destacar escapa HTML do texto (proteção contra XSS)', () => {
 
 test('destacar sem termo apenas escapa', () => {
   assert.equal(destacar('a < b', ''), 'a &lt; b');
+});
+
+test('destacarRadicais marca palavras inteiras que começam pelo radical', () => {
+  assert.equal(destacarRadicais('As Ciclovias e a ciclovia; ciclo', ['ciclov']),
+    'As <mark>Ciclovias</mark> e a <mark>ciclovia</mark>; ciclo');
+});
+
+test('destacarRadicais ignora acentos e escapa HTML', () => {
+  assert.equal(destacarRadicais('<i>Ônibus</i> elétricos', ['onibus', 'eletr']),
+    '&lt;i&gt;<mark>Ônibus</mark>&lt;/i&gt; <mark>elétricos</mark>');
+});
+
+test('destacarRadicais sem radicais apenas escapa', () => {
+  assert.equal(destacarRadicais('a < b', []), 'a &lt; b');
 });
 
 test('formatarData converte ISO para dd/mm/aaaa', () => {
