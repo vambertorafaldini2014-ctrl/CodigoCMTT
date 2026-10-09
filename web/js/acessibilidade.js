@@ -64,6 +64,20 @@ document.getElementById('botao-tema')?.addEventListener('click', () => {
 
 sistemaEscuro?.addEventListener?.('change', aplicar);
 
+// Tabelas largas rolam na horizontal (ex.: no celular). Para quem usa só o teclado conseguir
+// rolar, a área de rolagem precisa receber foco e ter um nome para leitores de tela (WCAG 2.1.1).
+function prepararTabelasRolaveis() {
+  for (const area of document.querySelectorAll('.tabela-rolagem:not([tabindex])')) {
+    const legenda = area.querySelector('caption')?.textContent.trim();
+    area.tabIndex = 0;
+    area.setAttribute('role', 'region');
+    area.setAttribute('aria-label', legenda ? `Tabela: ${legenda}` : 'Tabela com rolagem');
+  }
+}
+prepararTabelasRolaveis();
+// As páginas criam tabelas depois de consultar a API: prepara também as que surgirem
+new MutationObserver(prepararTabelasRolaveis).observe(document.body, { childList: true, subtree: true });
+
 aplicar();
 
 // ---- VLibras: tradutor oficial do Governo Federal para Língua Brasileira de Sinais ----
