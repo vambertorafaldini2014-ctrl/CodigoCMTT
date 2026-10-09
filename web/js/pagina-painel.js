@@ -1,6 +1,6 @@
 import { api } from './api.js';
 import { coresGraficos } from './acessibilidade.js';
-import { escaparHtml, formatarDataHora, formatarNumero, percentualMulheres, rotuloMandato } from './util.js';
+import { escaparHtml, formatarDataHora, formatarNumero, percentualMulheres, quebrarRotulo, rotuloMandato } from './util.js';
 
 const status = document.getElementById('status');
 const seletorTema = document.getElementById('seletor-tema');
@@ -75,7 +75,7 @@ function desenharTudo() {
 
   grafico('g-temas', {
     type: 'bar',
-    data: { labels: temas.map(t => t.tema), datasets: [{ label: 'Menções', data: temas.map(t => t.ocorrencias), backgroundColor: cores.serie[0] }] },
+    data: { labels: temas.map(t => quebrarRotulo(t.tema)), datasets: [{ label: 'Menções', data: temas.map(t => t.ocorrencias), backgroundColor: cores.serie[0] }] },
     options: { indexAxis: 'y', plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true }, y: { ticks: { autoSkip: false } } } },
   });
   tabela('d-temas', 'Temas mais debatidos', ['Tema', 'Menções', 'Reuniões em que aparece'],
@@ -106,7 +106,7 @@ function desenharTudo() {
 
   grafico('g-segmentos', {
     type: 'bar',
-    data: { labels: seg.map(s => s.segmento), datasets: [{ label: 'Cadeiras', data: seg.map(s => s.cadeiras), backgroundColor: cores.serie[3] }] },
+    data: { labels: seg.map(s => quebrarRotulo(s.segmento)), datasets: [{ label: 'Cadeiras', data: seg.map(s => s.cadeiras), backgroundColor: cores.serie[3] }] },
     options: { indexAxis: 'y', plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true }, y: { ticks: { autoSkip: false } } } },
   });
   tabela('d-segmentos', 'Cadeiras por segmento no mandato atual', ['Segmento', 'Cadeiras'], seg.map(s => [s.segmento, s.cadeiras]));

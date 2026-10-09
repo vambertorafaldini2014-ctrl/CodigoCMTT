@@ -5,13 +5,28 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Painel de dados — Buscador CMTT</title>
   <meta name="description" content="Análise de dados do CMTT: reuniões por ano, temas mais debatidos e composição do Conselho.">
+  <!-- partes:cabeca -->
   <link rel="icon" href="img/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="img/icone-192.png">
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="theme-color" content="#0b4f8a" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#0f141a" media="(prefers-color-scheme: dark)">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="pt_BR">
+  <meta property="og:site_name" content="Buscador CMTT">
+  <meta property="og:title" content="Buscador CMTT — atas do Conselho Municipal de Trânsito e Transporte">
+  <meta property="og:description" content="Pesquise as atas do CMTT de São Paulo desde 2013, veja a composição do Conselho e indicadores.">
+  <meta property="og:image" content="https://buscador-cmtt.netlify.app/img/compartilhar.png">
+  <meta property="og:image:alt" content="Buscador CMTT: busca nas atas do Conselho Municipal de Trânsito e Transporte">
+  <meta name="twitter:card" content="summary_large_image">
   <link rel="stylesheet" href="css/estilo.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js" defer></script>
   <script type="module" src="js/acessibilidade.js"></script>
+  <!-- /partes:cabeca -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js" defer></script>
   <script type="module" src="js/pagina-painel.js"></script>
 </head>
 <body>
+  <!-- partes:topo -->
   <a class="pular-link" href="#conteudo">Pular para o conteúdo</a>
 
   <div class="barra-acessibilidade">
@@ -19,6 +34,7 @@
       <button type="button" id="botao-diminuir" aria-label="Diminuir tamanho da fonte">A−</button>
       <button type="button" id="botao-aumentar" aria-label="Aumentar tamanho da fonte">A+</button>
       <button type="button" id="botao-contraste" aria-pressed="false">Alto contraste</button>
+      <button type="button" id="botao-tema" aria-pressed="false">Tema escuro</button>
       <a href="sobre.html#acessibilidade" style="color:inherit">Acessibilidade</a>
       <span id="anuncio-acessibilidade" class="visualmente-oculto" aria-live="polite"></span>
     </div>
@@ -47,6 +63,7 @@
       </nav>
     </div>
   </header>
+  <!-- /partes:topo -->
 
   <main id="conteudo" tabindex="-1">
     <div class="container">
@@ -66,7 +83,7 @@
 
         <section class="grafico" aria-labelledby="t-temas">
           <h2 id="t-temas">Temas mais debatidos</h2>
-          <div class="area"><canvas id="g-temas" role="img" aria-label="Gráfico de barras horizontais: menções a cada tema em todas as atas"></canvas></div>
+          <div class="area alta"><canvas id="g-temas" role="img" aria-label="Gráfico de barras horizontais: menções a cada tema em todas as atas"></canvas></div>
           <details><summary>Ver dados em tabela</summary><div class="tabela-rolagem" id="d-temas"></div></details>
         </section>
 
@@ -100,11 +117,13 @@
     </div>
   </main>
 
+  <!-- partes:rodape -->
   <footer class="rodape">
     <div class="container">
       <span>Projeto Integrador — UNIVESP</span>
       <span>Dados: atas públicas do CMTT / Prefeitura de São Paulo</span>
     </div>
   </footer>
+  <!-- /partes:rodape -->
 </body>
 </html>

@@ -124,6 +124,17 @@ export function percentualMulheres({ feminino = 0, masculino = 0 } = {}) {
   return total ? Math.round((100 * feminino) / total) : 0;
 }
 
+/** Quebra um rótulo longo em linhas de até `max` caracteres (o Chart.js desenha arrays como várias linhas). */
+export function quebrarRotulo(texto, max = 24) {
+  const linhas = [];
+  for (const palavra of String(texto ?? '').split(/\s+/).filter(Boolean)) {
+    const atual = linhas.at(-1);
+    if (atual !== undefined && (atual + ' ' + palavra).length <= max) linhas[linhas.length - 1] = `${atual} ${palavra}`;
+    else linhas.push(palavra);
+  }
+  return linhas.length > 1 ? linhas : (linhas[0] ?? '');
+}
+
 /** Converte código de mandato em texto legível: "2024mar 2026jan" -> "mar/2024 a jan/2026". */
 export function rotuloMandato(codigo) {
   const m = /^(\d{4})([a-z]{3})\s+(\d{4})([a-z]{3})$/i.exec(String(codigo ?? '').trim());
