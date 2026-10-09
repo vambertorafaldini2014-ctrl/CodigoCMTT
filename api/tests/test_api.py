@@ -63,6 +63,12 @@ class RepoFalso:
         return {"totais": {"reunioes": 91}, "reunioes_por_ano": [], "temas": [],
                 "temas_por_ano": [], "genero_por_mandato": [], "segmentos_mandato_atual": []}
 
+    def listar_feedback(self, avaliacao, limite, deslocamento):
+        self.ultima_listagem = (avaliacao, limite, deslocamento)
+        itens = [{"id": 1, "criado_em": "2026-10-09T12:00:00Z", "nome": "Ana", "mensagem": "Ótimo", "avaliacao": 5}]
+        return {"total": 1, "media": 5.0, "distribuicao": [{"avaliacao": 5, "total": 1}],
+                "total_filtrado": 1, "itens": itens}
+
     def salvar_feedback(self, nome, mensagem, avaliacao):
         self.feedbacks.append((nome, mensagem, avaliacao))
         return len(self.feedbacks)

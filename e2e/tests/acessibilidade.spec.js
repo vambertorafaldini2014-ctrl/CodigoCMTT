@@ -133,3 +133,15 @@ test('tema escuro pode ser ativado com o sistema no modo claro', async ({ page }
   await expect(page.locator('html')).toHaveAttribute('data-tema', 'escuro');
   await expect(page.locator('body')).toHaveCSS('background-color', 'rgb(15, 20, 26)');
 });
+
+test('áreas de tabela com rolagem podem ser alcançadas pelo teclado', async ({ page }) => {
+  await simularApi(page);
+  await page.goto('/conselho.html');
+  await page.locator('#cadeiras table').first().waitFor();
+  const areas = page.locator('.tabela-rolagem');
+  for (const area of await areas.all()) {
+    await expect(area).toHaveAttribute('tabindex', '0');
+    await expect(area).toHaveAttribute('role', 'region');
+    await expect(area).toHaveAttribute('aria-label', /^Tabela/);
+  }
+});
