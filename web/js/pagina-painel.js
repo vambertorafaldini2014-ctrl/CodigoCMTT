@@ -1,6 +1,6 @@
 import { api } from './api.js';
 import { coresGraficos } from './acessibilidade.js';
-import { escaparHtml, formatarNumero, rotuloMandato } from './util.js';
+import { escaparHtml, formatarNumero, percentualMulheres, rotuloMandato } from './util.js';
 
 const status = document.getElementById('status');
 const seletorTema = document.getElementById('seletor-tema');
@@ -83,7 +83,8 @@ function desenharTudo() {
 
   desenharEvolucao();
 
-  const pctF = gen.map(g => Math.round(100 * g.feminino / Math.max(1, g.feminino + g.masculino)));
+  const pctF = gen.map(g => percentualMulheres(g));
+  const temNaoInformado = gen.some(g => g.nao_informado > 0);
   grafico('g-genero', {
     type: 'bar',
     data: {
@@ -91,12 +92,17 @@ function desenharTudo() {
       datasets: [
         { label: 'Mulheres', data: gen.map(g => g.feminino), backgroundColor: cores.serie[1] },
         { label: 'Homens', data: gen.map(g => g.masculino), backgroundColor: cores.serie[0] },
+        ...(temNaoInformado ? [{ label: 'Não informado', data: gen.map(g => g.nao_informado), backgroundColor: cores.serie[6] ?? cores.serie[4] }] : []),
       ],
     },
-    options: { scales: { x: { stacked: true }, y: { stacked: true, beginAtZero: true } } },
+    options: {
+      plugins: { tooltip: { callbacks: { footer: (itens) => `${pctF[itens[0].dataIndex]}% mulheres` } } },
+      scales: { x: { stacked: true }, y: { stacked: true, beginAtZero: true, ticks: { precision: 0 } } },
+    },
   });
-  tabela('d-genero', 'Conselheiros por gênero e mandato', ['Mandato', 'Mulheres', 'Homens', '% mulheres'],
-    gen.map((g, i) => [rotuloMandato(g.mandato), g.feminino, g.masculino, `${pctF[i]}%`]));
+  tabela('d-genero', 'Pessoas distintas por gênero e mandato',
+    ['Mandato', 'Cadeiras', 'Mulheres', 'Homens', 'Não informado', '% mulheres'],
+    gen.map((g, i) => [rotuloMandato(g.mandato), g.cadeiras, g.feminino, g.masculino, g.nao_informado, `${pctF[i]}%`]));
 
   grafico('g-segmentos', {
     type: 'bar',

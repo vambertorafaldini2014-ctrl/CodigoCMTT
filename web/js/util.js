@@ -89,6 +89,12 @@ export function paraCsv(linhas, colunas) {
   return '﻿' + [cabecalho, ...corpo].join('\r\n');
 }
 
+/** % de mulheres entre as pessoas com gênero informado (arredondado). */
+export function percentualMulheres({ feminino = 0, masculino = 0 } = {}) {
+  const total = feminino + masculino;
+  return total ? Math.round((100 * feminino) / total) : 0;
+}
+
 /** Converte código de mandato em texto legível: "2024mar 2026jan" -> "mar/2024 a jan/2026". */
 export function rotuloMandato(codigo) {
   const m = /^(\d{4})([a-z]{3})\s+(\d{4})([a-z]{3})$/i.exec(String(codigo ?? '').trim());

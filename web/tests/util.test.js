@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  destacar, escaparHtml, formatarData, montarQuery, normalizar, palavrasDoTermo, paraCsv, rotuloMandato,
+  destacar, escaparHtml, formatarData, montarQuery, normalizar, palavrasDoTermo, paraCsv, percentualMulheres, rotuloMandato,
 } from '../js/util.js';
 
 test('escaparHtml neutraliza tags', () => {
@@ -49,6 +49,12 @@ test('montarQuery ignora valores vazios', () => {
 test('paraCsv usa ; e escapa aspas e quebras de linha', () => {
   const csv = paraCsv([{ a: 'x;y', b: 'diz "oi"' }], [{ campo: 'a', titulo: 'A' }, { campo: 'b', titulo: 'B' }]);
   assert.equal(csv, '﻿A;B\r\n"x;y";"diz ""oi"""');
+});
+
+test('percentualMulheres ignora gênero não informado e evita divisão por zero', () => {
+  assert.equal(percentualMulheres({ feminino: 104, masculino: 70, nao_informado: 2 }), 60);
+  assert.equal(percentualMulheres({ feminino: 0, masculino: 0 }), 0);
+  assert.equal(percentualMulheres(), 0);
 });
 
 test('rotuloMandato deixa o código legível', () => {
