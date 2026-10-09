@@ -30,7 +30,7 @@ PDFs ──► pipeline Python (local) ──► scripts/carregar_supabase.py �
 | API | REST: `/api/busca`, `/api/reunioes`, `/api/mandatos`, `/api/conselheiros`, `/api/estatisticas`, `/api/feedback` |
 | Acessibilidade | WCAG 2.1 AA / eMAG: VLibras, alto contraste, ajuste de fonte, teclado, leitores de tela, tabelas equivalentes aos gráficos |
 | Controle de versão | Git + GitHub |
-| Testes | `pytest` (API) e `node --test` (JS), executados no GitHub Actions (`.github/workflows/ci.yml`) |
+| Testes | `pytest` (API e qualidade dos dados), `node --test` (JS) e **Playwright + axe-core** (navegador e acessibilidade WCAG 2.1 AA, no computador e no celular), executados no GitHub Actions (`.github/workflows/ci.yml`) |
 | Análise de dados | Painel: reuniões/ano, temas mais debatidos, evolução de temas, gênero por mandato, segmentos, tendência de termos buscados |
 
 ### Rodando localmente
@@ -50,6 +50,12 @@ api\.venv\Scripts\python scripts\carregar_supabase.py
 cd web
 npm test                                                    # testes do JavaScript
 python -m http.server 5500                                  # http://localhost:5500
+
+# 4. Testes de navegador e acessibilidade (não precisam da API nem do banco: usam uma API simulada)
+cd e2e
+npm ci
+npx playwright install chromium
+npx playwright test                                         # relatório: npx playwright show-report
 ```
 
 > O plano gratuito do Render desliga a API após ~15 min sem uso; a primeira consulta seguinte pode levar até 1 minuto

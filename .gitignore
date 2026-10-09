@@ -23,3 +23,7 @@ dados/configs/.cache_corpus_atas.json
 .env
 node_modules/
 
+
+# --- Testes E2E (Playwright) ---
+e2e/test-results/
+e2e/playwright-report/

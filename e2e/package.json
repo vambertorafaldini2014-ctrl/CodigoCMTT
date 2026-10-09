@@ -1,0 +1,16 @@
+{
+  "name": "buscador-cmtt-e2e",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Testes de ponta a ponta e de acessibilidade do site (Playwright + axe-core)",
+  "type": "module",
+  "scripts": {
+    "test": "playwright test",
+    "relatorio": "playwright show-report"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "4.13.0",
+    "@playwright/test": "1.59.1",
+    "http-server": "14.1.1"
+  }
+}
