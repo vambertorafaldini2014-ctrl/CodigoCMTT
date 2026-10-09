@@ -9,6 +9,16 @@ const PAGINAS = [
   { nome: 'Conselho', url: '/conselho.html', pronta: '#cadeiras table' },
   { nome: 'Painel', url: '/painel.html', pronta: '#indicadores li' },
   { nome: 'Sobre', url: '/sobre.html', pronta: '#form-feedback' },
+  { nome: 'Página não encontrada', url: '/pagina-que-nao-existe', pronta: 'h1' },
+];
+
+const MODOS = [
+  { rotulo: '', preparar: async () => {} },
+  {
+    rotulo: ' (alto contraste)',
+    preparar: (page) => page.addInitScript(() => localStorage.setItem('cmtt-acessibilidade', JSON.stringify({ contraste: true }))),
+  },
+  { rotulo: ' (tema escuro do sistema)', preparar: (page) => page.emulateMedia({ colorScheme: 'dark' }) },
 ];
 
 // Regras WCAG 2.0/2.1 níveis A e AA (o padrão exigido pelo eMAG)
@@ -23,11 +33,9 @@ test.beforeEach(async ({ page }) => {
 });
 
 for (const { nome, url, pronta } of PAGINAS) {
-  for (const contraste of [false, true]) {
-    test(`${nome}: sem violações WCAG 2.1 AA${contraste ? ' (alto contraste)' : ''}`, async ({ page }) => {
-      if (contraste) {
-        await page.addInitScript(() => localStorage.setItem('cmtt-acessibilidade', JSON.stringify({ contraste: true })));
-      }
+  for (const { rotulo, preparar } of MODOS) {
+    test(`${nome}: sem violações WCAG 2.1 AA${rotulo}`, async ({ page }) => {
+      await preparar(page);
       await page.goto(url);
       await page.locator(pronta).first().waitFor();
       const { violations } = await new AxeBuilder({ page }).withTags(REGRAS).analyze();
@@ -98,4 +106,30 @@ test('cada gráfico do painel tem uma tabela equivalente', async ({ page }) => {
     await secao.getByText('Ver dados em tabela').click();
     await expect(secao.getByRole('table')).toBeVisible();
   }
+});
+
+test('tema escuro segue o sistema e pode ser trocado pelo botão', async ({ page }) => {
+  await page.emulateMedia({ colorScheme: 'dark' });
+  await page.goto('/index.html');
+  const botao = page.getByRole('button', { name: 'Tema escuro' });
+  await expect(botao).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.locator('body')).toHaveCSS('background-color', 'rgb(15, 20, 26)');
+
+  await botao.click();
+  await expect(botao).toHaveAttribute('aria-pressed', 'false');
+  await expect(page.locator('html')).toHaveAttribute('data-tema', 'claro');
+  await expect(page.locator('body')).toHaveCSS('background-color', 'rgb(245, 247, 250)');
+  await expect(page.locator('#anuncio-acessibilidade')).toHaveText('Tema claro ativado');
+
+  // A escolha vale para as outras páginas, mesmo com o sistema no modo escuro
+  await page.goto('/painel.html');
+  await expect(page.locator('html')).toHaveAttribute('data-tema', 'claro');
+});
+
+test('tema escuro pode ser ativado com o sistema no modo claro', async ({ page }) => {
+  await page.emulateMedia({ colorScheme: 'light' });
+  await page.goto('/index.html');
+  await page.getByRole('button', { name: 'Tema escuro' }).click();
+  await expect(page.locator('html')).toHaveAttribute('data-tema', 'escuro');
+  await expect(page.locator('body')).toHaveCSS('background-color', 'rgb(15, 20, 26)');
 });
