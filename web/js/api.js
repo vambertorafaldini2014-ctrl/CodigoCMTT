@@ -68,4 +68,11 @@ export const api = {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(dados),
   }),
+  // Área administrativa: exigem o token de acesso do login (Supabase Auth)
+  admin: {
+    eu: (token) => requisitar('/api/admin/eu', { headers: { Authorization: `Bearer ${token}` } }),
+    feedback: (filtros, token) => requisitar('/api/admin/feedback' + montarQuery(filtros), {
+      headers: { Authorization: `Bearer ${token}` },
+    }),
+  },
 };
