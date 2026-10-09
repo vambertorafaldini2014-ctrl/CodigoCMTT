@@ -100,6 +100,7 @@ html[data-contraste="alto"] .barra-acessibilidade { background: #000; border-bot
 html[data-contraste="alto"] .barra-acessibilidade button { color: #ffeb3b; border-color: #ffeb3b; }
 .barra-acessibilidade button:hover { background: rgba(255,255,255,.15); }
 .barra-acessibilidade button[aria-pressed="true"] { background: #fff; color: var(--primaria-escura); }
+html[data-contraste="alto"] .barra-acessibilidade button[aria-pressed="true"] { background: #ffeb3b; color: #000; }
 
 /* ---------- Layout ---------- */
 .container { width: 100%; max-width: var(--largura); margin-inline: auto; padding-inline: 1rem; }
