@@ -199,3 +199,21 @@ def test_feedback_nome_vazio_vira_nulo(cliente, repo):
 ])
 def test_feedback_invalido(cliente, corpo):
     assert cliente.post("/api/feedback", json=corpo).status_code == 422
+
+
+def test_falha_de_conexao_com_o_banco_vira_503(repo):
+    from psycopg_pool import PoolTimeout
+
+    def falhar():
+        raise PoolTimeout("sem conexão")
+    repo.anos = falhar
+    resp = TestClient(app, raise_server_exceptions=False).get("/api/anos")
+    assert resp.status_code == 503
+    assert "indisponível" in resp.json()["detail"]
+
+
+def test_outros_erros_continuam_500(repo):
+    def falhar():
+        raise ValueError("bug")
+    repo.anos = falhar
+    assert TestClient(app, raise_server_exceptions=False).get("/api/anos").status_code == 500
