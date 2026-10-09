@@ -1,5 +1,5 @@
 import { api } from './api.js';
-import { destacar, escaparHtml, formatarData, formatarNumero, normalizar, palavrasDoTermo, rotuloMandato } from './util.js';
+import { destacar, destacarRadicais, escaparHtml, formatarData, formatarNumero, normalizar, palavrasDoTermo, rotuloMandato } from './util.js';
 
 const params = new URLSearchParams(location.search);
 const id = params.get('id');
@@ -11,16 +11,21 @@ const textoAta = document.getElementById('texto-ata');
 
 let linhas = [];
 
-/** Mostra só as linhas que contêm `termo` e destaca `realce` (por padrão, o próprio termo). */
+/**
+ * Mostra só as linhas que contêm `termo` e destaca `realce`: um texto (por padrão, o próprio termo)
+ * ou uma função que recebe a linha e devolve o HTML destacado.
+ */
 function renderizarTexto(termo, realce = termo) {
   const palavras = palavrasDoTermo(termo);
+  const destacarLinha = typeof realce === 'function' ? realce
+    : realce ? (linha) => destacar(linha, realce) : escaparHtml;
   let visiveis = 0;
   textoAta.innerHTML = linhas.map((linha, i) => {
     const norm = normalizar(linha);
     const casa = palavras.every(p => norm.includes(p));
     if (casa) visiveis++;
     const classe = palavras.length && !casa ? ' class="oculta"' : '';
-    return `<p id="linha-${i + 1}"${classe}>${realce ? destacar(linha, realce) : escaparHtml(linha)}</p>`;
+    return `<p id="linha-${i + 1}"${classe}>${destacarLinha(linha)}</p>`;
   }).join('');
   contagem.textContent = palavras.length
     ? `${formatarNumero(visiveis)} de ${formatarNumero(linhas.length)} linhas contêm o termo.`
@@ -53,13 +58,16 @@ async function carregar() {
 
     linhas = r.linhas;
     const destaque = params.get('destaque') || '';
+    // Busca inteligente: a busca envia os radicais (ex.: "ciclov") para destacar as variações
+    const radicais = (params.get('radicais') || '').split(',').filter(Boolean);
+    const realceDaBusca = radicais.length ? (linha) => destacarRadicais(linha, radicais) : destaque;
     document.getElementById('detalhes').hidden = false;
 
     const alvo = /^#linha-\d+$/.test(location.hash) ? location.hash : null;
     if (alvo) {
       // Veio de um resultado da busca: mostra o texto inteiro, com o termo destacado,
       // e rola até a linha encontrada
-      renderizarTexto('', destaque);
+      renderizarTexto('', realceDaBusca);
       const linha = document.querySelector(alvo);
       if (linha) {
         linha.style.background = 'var(--primaria-clara)';

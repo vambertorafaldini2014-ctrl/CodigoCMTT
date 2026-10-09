@@ -57,6 +57,25 @@ export function destacar(texto, termo) {
   return html;
 }
 
+/**
+ * Destaca as PALAVRAS do texto que começam por algum dos radicais informados pela API
+ * (busca inteligente): com o radical "ciclov", destaca "ciclovia", "Ciclovias"...
+ */
+export function destacarRadicais(texto, radicais) {
+  const lista = (radicais ?? []).map(r => normalizar(r)).filter(Boolean);
+  const original = String(texto ?? '');
+  if (!lista.length) return escaparHtml(original);
+  let html = '';
+  let ultimo = 0;
+  for (const m of original.matchAll(/[\p{L}\p{N}]+/gu)) {
+    if (lista.some(r => normalizar(m[0]).startsWith(r))) {
+      html += escaparHtml(original.slice(ultimo, m.index)) + `<mark>${escaparHtml(m[0])}</mark>`;
+      ultimo = m.index + m[0].length;
+    }
+  }
+  return html + escaparHtml(original.slice(ultimo));
+}
+
 /** "2024-03-01" -> "01/03/2024" (sem conversão de fuso horário). */
 export function formatarData(iso) {
   const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(iso ?? ''));

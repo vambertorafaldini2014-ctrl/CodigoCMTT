@@ -24,7 +24,7 @@ PDFs ──► pipeline Python (local) ──► scripts/carregar_supabase.py �
 | Requisito | Implementação |
 |---|---|
 | Framework web | **FastAPI** (`api/app/main.py`) — documentação automática em `/docs` |
-| Banco de dados | **PostgreSQL / Supabase** (`database/schema.sql`), busca com índice trigram (`pg_trgm`) |
+| Banco de dados | **PostgreSQL / Supabase** (`database/schema.sql`): busca textual em português (`tsvector`, radicais e relevância) e busca exata com índice trigram (`pg_trgm`) |
 | Script web | **JavaScript** puro com módulos ES (`web/js/`), gráficos com Chart.js |
 | Nuvem | Supabase (banco), Render (API), Netlify (site) |
 | API | REST: `/api/busca`, `/api/reunioes`, `/api/mandatos`, `/api/conselheiros`, `/api/estatisticas`, `/api/feedback` |

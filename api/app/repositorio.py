@@ -60,21 +60,43 @@ class Repositorio:
         return reuniao
 
     # ---------------------------------------------------------------- busca
-    def buscar(self, padrao: str, ano: int | None, limite: int, deslocamento: int) -> dict:
-        filtro = """
+    def consulta_valida(self, consulta: str) -> bool:
+        """False quando a busca inteligente não sobra nada (ex.: só palavras como "de", "a", "o")."""
+        return self._um("select numnode(websearch_to_tsquery('portuguese', %s)) > 0 as ok", (consulta,))["ok"]
+
+    def radicais(self, palavras: str) -> list[str]:
+        """Radicais em português das palavras (ex.: "ciclovias" -> "ciclov"), para destacar no site."""
+        return [r["lexema"] for r in self._todos(
+            "select distinct unnest(tsvector_to_array(to_tsvector('portuguese', %s))) as lexema", (palavras,))]
+
+    def buscar(self, *, modo: str, consulta: str, padrao: str | None, ordem: str,
+               ano: int | None, limite: int, deslocamento: int) -> dict:
+        """
+        modo "inteligente": busca por radicais em português (websearch_to_tsquery);
+        modo "exato": o texto digitado aparece na linha (LIKE, ignorando acentos).
+        ordem "relevancia" (ts_rank_cd) ou "data" (mais recentes primeiro).
+        """
+        condicao = ("l.busca @@ websearch_to_tsquery('portuguese', %(consulta)s)" if modo == "inteligente"
+                    else "l.texto_norm like %(padrao)s")
+        filtro = f"""
               from linhas_ata l join reunioes r on r.id = l.reuniao_id
-             where l.texto_norm like %(padrao)s
+             where {condicao}
                and (%(ano)s::int is null or r.ano = %(ano)s)
         """
-        params = {"padrao": padrao, "ano": ano, "limite": limite, "deslocamento": deslocamento}
+        ordenacao = "r.data desc nulls last, l.ordem"
+        if ordem == "relevancia":
+            ordenacao = ("ts_rank_cd(l.busca, websearch_to_tsquery('portuguese', %(consulta)s)) desc, "
+                         + ordenacao)
+        params = {"consulta": consulta, "padrao": padrao, "ano": ano,
+                  "limite": limite, "deslocamento": deslocamento}
         total = self._um("select count(*) as total " + filtro, params)["total"]
         por_ano = self._todos(
             "select r.ano, count(*) as ocorrencias " + filtro + " group by r.ano order by r.ano", params)
         resultados = self._todos(
             """
             select r.id as reuniao_id, r.arquivo, r.titulo, r.data, r.ano, l.ordem, l.texto
-            """ + filtro + """
-             order by r.data desc nulls last, l.ordem
+            """ + filtro + f"""
+             order by {ordenacao}
              limit %(limite)s offset %(deslocamento)s
             """,
             params,

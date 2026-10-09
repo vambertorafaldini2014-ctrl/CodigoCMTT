@@ -32,6 +32,12 @@ def padrao_like(termo: str) -> str | None:
     return "%" + "%".join(termo.split(" ")) + "%"
 
 
+def palavras_para_destaque(termo: str) -> str:
+    """Palavras que devem ser destacadas nos resultados: ignora exclusões (-palavra), OR e aspas."""
+    palavras = normalizar(termo).replace('"', " ").split()
+    return " ".join(p for p in palavras if not p.startswith("-") and p != "or")
+
+
 MESES = {"jan": 1, "fev": 2, "mar": 3, "abr": 4, "mai": 5, "jun": 6,
          "jul": 7, "ago": 8, "set": 9, "out": 10, "nov": 11, "dez": 12}
 

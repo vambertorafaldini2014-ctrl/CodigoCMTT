@@ -9,7 +9,7 @@ from fastapi import Depends, FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
-from .texto import padrao_like
+from .texto import normalizar, padrao_like, palavras_para_destaque
 
 GITHUB_USUARIO = os.getenv("GITHUB_USUARIO", "vambertorafaldini2014-ctrl")
 GITHUB_REPO = os.getenv("GITHUB_REPO", "CodigoCMTT")
@@ -109,7 +109,12 @@ def obter_reuniao(reuniao_id: int, repo=Depends(get_repo)):
 
 @app.get("/api/busca", tags=["Busca"], summary="Busca textual em todas as atas")
 def buscar(
-    q: str = Query(..., min_length=2, max_length=200, description='Palavras-chave ou "frase exata"'),
+    q: str = Query(..., min_length=2, max_length=200,
+                   description='Palavras-chave. Na busca inteligente aceita "frase exata", -excluir e OR.'),
+    modo: str = Query("inteligente", pattern="^(inteligente|exato)$",
+                      description="inteligente: encontra plurais e variações (ciclovias → ciclovia). "
+                                  "exato: o texto digitado aparece na linha."),
+    ordem: str = Query("relevancia", pattern="^(relevancia|data)$"),
     ano: int | None = Query(None, ge=2000, le=2100),
     pagina: int = Query(1, ge=1, le=1000),
     por_pagina: int = Query(50, ge=1, le=200),
@@ -118,9 +123,16 @@ def buscar(
     padrao = padrao_like(q)
     if not padrao:
         raise HTTPException(422, "Digite ao menos 2 caracteres válidos.")
-    res = repo.buscar(padrao, ano, por_pagina, (pagina - 1) * por_pagina)
+    consulta = normalizar(q)
+    # Busca só com palavras muito comuns ("de", "o"...) não tem radicais: cai para o modo exato
+    if modo == "inteligente" and not repo.consulta_valida(consulta):
+        modo = "exato"
+    res = repo.buscar(modo=modo, consulta=consulta, padrao=padrao, ordem=ordem, ano=ano,
+                      limite=por_pagina, deslocamento=(pagina - 1) * por_pagina)
     res["resultados"] = [_com_pdf(r) for r in res["resultados"]]
-    return {"termo": q, "pagina": pagina, "por_pagina": por_pagina, **res}
+    radicais = repo.radicais(palavras_para_destaque(q)) if modo == "inteligente" else []
+    return {"termo": q, "modo": modo, "ordem": ordem, "radicais": radicais,
+            "pagina": pagina, "por_pagina": por_pagina, **res}
 
 
 @app.get("/api/mandatos", tags=["Conselho"], summary="Lista os mandatos do Conselho")

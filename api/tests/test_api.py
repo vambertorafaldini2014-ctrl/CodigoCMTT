@@ -36,8 +36,14 @@ class RepoFalso:
                 "tipo": "Ordinária", "data": date(2013, 8, 2), "ano": 2013, "local": "Biblioteca",
                 "mandato": "2013ago 2014mai", "temas": [], "linhas": ["linha 1", "linha 2"]}
 
-    def buscar(self, padrao, ano, limite, deslocamento):
-        self.ultima_busca = (padrao, ano, limite, deslocamento)
+    def consulta_valida(self, consulta):
+        return consulta not in ("de", "o que")  # simula consulta só com palavras muito comuns
+
+    def radicais(self, palavras):
+        return [p[:6] for p in palavras.split()]
+
+    def buscar(self, **kwargs):
+        self.ultima_busca = kwargs
         return {"total": 1, "por_ano": [{"ano": 2013, "ocorrencias": 1}],
                 "resultados": [{"reuniao_id": 1, "arquivo": "01_2013_Pleno_ordin_ata.pdf",
                                 "titulo": "1ª Reunião Ordinária", "data": date(2013, 8, 2),
@@ -116,13 +122,40 @@ def test_obter_reuniao_inexistente(cliente):
     assert cliente.get("/api/reunioes/999").status_code == 404
 
 
-def test_busca_monta_padrao_e_paginacao(cliente, repo):
-    resp = cliente.get("/api/busca", params={"q": "Ciclovia Paulista", "ano": 2013, "pagina": 3, "por_pagina": 20})
+def test_busca_padrao_e_inteligente_por_relevancia(cliente, repo):
+    resp = cliente.get("/api/busca", params={"q": "Ciclovias Paulista", "ano": 2013, "pagina": 3, "por_pagina": 20})
     assert resp.status_code == 200
-    assert repo.ultima_busca == ("%ciclovia%paulista%", 2013, 20, 40)
+    assert repo.ultima_busca == {"modo": "inteligente", "consulta": "ciclovias paulista",
+                                 "padrao": "%ciclovias%paulista%", "ordem": "relevancia",
+                                 "ano": 2013, "limite": 20, "deslocamento": 40}
     corpo = resp.json()
+    assert corpo["modo"] == "inteligente"
+    assert corpo["radicais"] == ["ciclov", "paulis"]
     assert corpo["total"] == 1
     assert corpo["resultados"][0]["url_pdf"].endswith("01_2013_Pleno_ordin_ata.pdf")
+
+
+def test_busca_exata_por_data_nao_calcula_radicais(cliente, repo):
+    corpo = cliente.get("/api/busca", params={"q": "faixa", "modo": "exato", "ordem": "data"}).json()
+    assert repo.ultima_busca["modo"] == "exato"
+    assert repo.ultima_busca["ordem"] == "data"
+    assert corpo["radicais"] == []
+
+
+def test_busca_so_com_palavras_comuns_cai_para_modo_exato(cliente, repo):
+    corpo = cliente.get("/api/busca", params={"q": "De"}).json()
+    assert corpo["modo"] == "exato"
+    assert repo.ultima_busca["modo"] == "exato"
+
+
+def test_busca_destaque_ignora_exclusoes(cliente):
+    corpo = cliente.get("/api/busca", params={"q": 'onibus -paulista OR "faixa exclusiva"'}).json()
+    assert corpo["radicais"] == ["onibus", "faixa", "exclus"]
+
+
+@pytest.mark.parametrize("params", [{"modo": "fuzzy"}, {"ordem": "alfabetica"}])
+def test_busca_rejeita_modo_ou_ordem_invalidos(cliente, params):
+    assert cliente.get("/api/busca", params={"q": "ônibus", **params}).status_code == 422
 
 
 @pytest.mark.parametrize("q", ["a", "x" * 201])
