@@ -59,6 +59,42 @@ const mandato6 = {
   ],
 };
 
+// ---- Login (Supabase Auth simulado) ----
+export const EMAIL_ADMIN = 'admin@exemplo.com';
+const FEEDBACKS = [
+  { id: 4, criado_em: '2026-10-09T15:30:00Z', nome: 'Ana', mensagem: 'Muito útil para a pesquisa!', avaliacao: 5 },
+  { id: 3, criado_em: '2026-10-08T12:00:00Z', nome: null, mensagem: 'Poderia ter mais filtros.', avaliacao: 3 },
+  { id: 2, criado_em: '2026-10-07T12:00:00Z', nome: 'Bruno', mensagem: '<script>alert(1)</script>', avaliacao: 5 },
+  { id: 1, criado_em: '2026-10-06T12:00:00Z', nome: 'Carla', mensagem: 'Sem nota', avaliacao: null },
+];
+
+const base64url = (obj) => Buffer.from(JSON.stringify(obj)).toString('base64url');
+function tokenFalso(email) {
+  const exp = Math.floor(Date.now() / 1000) + 3600;
+  return `${base64url({ alg: 'HS256', typ: 'JWT' })}.${base64url({ sub: email, email, exp, role: 'authenticated', aud: 'authenticated' })}.assinatura`;
+}
+function emailDoToken(token) {
+  try { return JSON.parse(Buffer.from(token.split('.')[1], 'base64url').toString()).email; } catch { return null; }
+}
+
+/** Simula o Supabase Auth: senha "senha-correta" funciona para qualquer e-mail. */
+export async function simularSupabase(page) {
+  await page.route('https://aigencggrhljwzibbbfo.supabase.co/auth/v1/**', async (rota) => {
+    const url = new URL(rota.request().url());
+    if (url.pathname.endsWith('/token')) {
+      const { email, password } = rota.request().postDataJSON();
+      if (password !== 'senha-correta') {
+        return rota.fulfill({ status: 400, json: { error: 'invalid_grant', error_description: 'Invalid login credentials' } });
+      }
+      const usuario = { id: email, aud: 'authenticated', role: 'authenticated', email, app_metadata: {}, user_metadata: {}, created_at: '2026-01-01T00:00:00Z' };
+      return rota.fulfill({ json: { access_token: tokenFalso(email), token_type: 'bearer', expires_in: 3600,
+        expires_at: Math.floor(Date.now() / 1000) + 3600, refresh_token: 'renovar', user: usuario } });
+    }
+    if (url.pathname.endsWith('/logout')) return rota.fulfill({ status: 204, body: '' });
+    return rota.fulfill({ status: 404, json: {} });
+  });
+}
+
 /** Liga a API simulada na página. Devolve a lista de feedbacks recebidos (para conferir nos testes). */
 export async function simularApi(page) {
   const feedbacks = [];
@@ -83,6 +119,17 @@ export async function simularApi(page) {
       return json([{ nome: 'Ana Souza', funcao: 'TITULAR', orgao: 'CET', segmento: 'ÓRGÃOS MUNICIPAIS', mandato: '2024mar 2026jan', inicio: '2024-03-01' }]);
     }
     if (caminho === '/estatisticas') return json(estatisticas);
+    if (caminho.startsWith('/admin/')) {
+      const autorizacao = rota.request().headers().authorization ?? '';
+      const email = emailDoToken(autorizacao.replace('Bearer ', ''));
+      if (!email) return json({ detail: 'Faça login para acessar.' }, 401);
+      if (email !== EMAIL_ADMIN) return json({ detail: 'Este usuário não tem permissão de administrador.' }, 403);
+      if (caminho === '/admin/eu') return json({ email });
+      const nota = url.searchParams.get('avaliacao');
+      const itens = FEEDBACKS.filter((f) => !nota || String(f.avaliacao) === nota);
+      return json({ total: FEEDBACKS.length, media: 4.33, total_filtrado: itens.length, pagina: 1, por_pagina: 50,
+        distribuicao: [{ avaliacao: 3, total: 1 }, { avaliacao: 5, total: 2 }, { avaliacao: null, total: 1 }], itens });
+    }
     if (caminho === '/feedback' && rota.request().method() === 'POST') {
       feedbacks.push(rota.request().postDataJSON());
       return json({ id: feedbacks.length, mensagem: 'Obrigado pelo seu feedback!' }, 201);

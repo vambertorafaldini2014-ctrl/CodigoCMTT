@@ -5,10 +5,12 @@ Documentação interativa gerada automaticamente em /docs (Swagger) e /redoc.
 import os
 from contextlib import asynccontextmanager
 
-from fastapi import Depends, FastAPI, HTTPException, Query
+from fastapi import Depends, FastAPI, HTTPException, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
+from .autenticacao import exigir_admin
+from .limite import LimiteDeEnvios
 from .texto import normalizar, padrao_like, palavras_para_destaque
 
 GITHUB_USUARIO = os.getenv("GITHUB_USUARIO", "vambertorafaldini2014-ctrl")
@@ -48,7 +50,7 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=[o.strip() for o in os.getenv("CORS_ORIGINS", "*").split(",")],
     allow_methods=["GET", "POST"],
-    allow_headers=["Content-Type"],
+    allow_headers=["Content-Type", "Authorization"],
 )
 
 
@@ -167,8 +169,38 @@ class Feedback(BaseModel):
     avaliacao: int | None = Field(None, ge=1, le=5)
 
 
+# Até 5 feedbacks a cada 10 minutos por endereço IP (proteção contra spam)
+limite_feedback = LimiteDeEnvios(maximo=5, janela_segundos=600)
+
+
+def ip_do_cliente(request: Request) -> str:
+    # No Render a API fica atrás de um proxy: o IP real é o primeiro do X-Forwarded-For
+    encaminhado = request.headers.get("x-forwarded-for", "")
+    return encaminhado.split(",")[0].strip() or (request.client.host if request.client else "desconhecido")
+
+
 @app.post("/api/feedback", status_code=201, tags=["Feedback"], summary="Envia uma sugestão ou avaliação")
-def enviar_feedback(dados: Feedback, repo=Depends(get_repo)):
+def enviar_feedback(dados: Feedback, request: Request, repo=Depends(get_repo)):
+    if not limite_feedback.permitir(ip_do_cliente(request)):
+        raise HTTPException(429, "Você enviou muitas mensagens seguidas. Tente novamente em alguns minutos.")
     nome = dados.nome.strip() if dados.nome and dados.nome.strip() else None
     novo_id = repo.salvar_feedback(nome, dados.mensagem.strip(), dados.avaliacao)
     return {"id": novo_id, "mensagem": "Obrigado pelo seu feedback!"}
+
+
+# ------------------------------------------------------------------ área administrativa
+@app.get("/api/admin/eu", tags=["Administração"], summary="Confirma o login de administrador")
+def quem_sou_eu(email: str = Depends(exigir_admin)):
+    return {"email": email}
+
+
+@app.get("/api/admin/feedback", tags=["Administração"], summary="Feedbacks recebidos (requer login)")
+def listar_feedback(
+    avaliacao: int | None = Query(None, ge=1, le=5),
+    pagina: int = Query(1, ge=1, le=1000),
+    por_pagina: int = Query(50, ge=1, le=500),
+    _admin: str = Depends(exigir_admin),
+    repo=Depends(get_repo),
+):
+    return {"pagina": pagina, "por_pagina": por_pagina,
+            **repo.listar_feedback(avaliacao, por_pagina, (pagina - 1) * por_pagina)}
