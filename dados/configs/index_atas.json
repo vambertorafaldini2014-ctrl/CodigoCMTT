@@ -544,5 +544,47 @@
         "data_correta": "02/01/2026",
         "local": "Online – Plataforma Microsoft Teams",
         "caminho_absoluto": "C:\\Users\\m124712\\OneDrive - rede.sp\\Documentos\\CMTT\\Codigo\\dados\\base_dados\\pdf_atas_pleno\\extra_10_2026_Pleno_ata.pdf"
+    },
+    "83_2026_Pleno_ordin_ata.pdf": {
+        "titulo_reuniao": "83ª Reunião Ordinária",
+        "data_correta": "27/02/2026",
+        "local": "Online – Plataforma Microsoft Teams",
+        "caminho_absoluto": "dados/base_dados/pdf_atas_pleno/83_2026_Pleno_ordin_ata.pdf",
+        "url_origem": "https://prefeitura.sp.gov.br/documents/d/mobilidade/83-reuniao-ordinaria-cmtt-27-02-2026-pdf"
+    },
+    "extra_11_2026_Pleno_ata.pdf": {
+        "titulo_reuniao": "Reunião Extraordinária",
+        "data_correta": "06/03/2026",
+        "local": "Online – Plataforma Microsoft Teams",
+        "caminho_absoluto": "dados/base_dados/pdf_atas_pleno/extra_11_2026_Pleno_ata.pdf",
+        "url_origem": "https://prefeitura.sp.gov.br/documents/d/mobilidade/reuniao-extraordinaria-do-cmtt-escolha-dos-representantes-cmpu-fundurb-e-comissao-executiva-pdf"
+    },
+    "extra_12_2026_Pleno_ata.pdf": {
+        "titulo_reuniao": "Reunião Extraordinária",
+        "data_correta": "07/04/2026",
+        "local": "Online – Plataforma Microsoft Teams",
+        "caminho_absoluto": "dados/base_dados/pdf_atas_pleno/extra_12_2026_Pleno_ata.pdf",
+        "url_origem": "https://prefeitura.sp.gov.br/documents/d/mobilidade/reuniao-extraordinaria-do-cmtt-07-04-26-pdf"
+    },
+    "84_2026_Pleno_ordin_ata.pdf": {
+        "titulo_reuniao": "84ª Reunião Ordinária",
+        "data_correta": "23/04/2026",
+        "local": "Online – Plataforma Microsoft Teams",
+        "caminho_absoluto": "dados/base_dados/pdf_atas_pleno/84_2026_Pleno_ordin_ata.pdf",
+        "url_origem": "https://prefeitura.sp.gov.br/documents/d/mobilidade/84-reuniao-ordinaria-cmtt-23-04-2026-pdf"
+    },
+    "85_2026_Pleno_ordin_ata.pdf": {
+        "titulo_reuniao": "85ª Reunião Ordinária",
+        "data_correta": "26/06/2026",
+        "local": "Online – Plataforma Microsoft Teams",
+        "caminho_absoluto": "dados/base_dados/pdf_atas_pleno/85_2026_Pleno_ordin_ata.pdf",
+        "url_origem": "https://prefeitura.sp.gov.br/documents/d/mobilidade/85-reuniao-ordinaria-cmtt-26-06-2026-pdf"
+    },
+    "86_2026_Pleno_ordin_ata.pdf": {
+        "titulo_reuniao": "86ª Reunião Ordinária",
+        "data_correta": "28/08/2026",
+        "local": "Não informado",
+        "caminho_absoluto": "dados/base_dados/pdf_atas_pleno/86_2026_Pleno_ordin_ata.pdf",
+        "url_origem": "https://prefeitura.sp.gov.br/documents/d/mobilidade/86_reuniao_ordinaria_cmtt_28082026-pdf"
     }
 }
