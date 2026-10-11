@@ -1,0 +1,73 @@
+# Procura atas novas do Conselho Pleno no site da Prefeitura toda segunda-feira.
+# Se encontrar, baixa os PDFs, atualiza o índice e o texto (cache) e abre um Pull Request
+# para a equipe conferir. Ao aprovar o PR, o workflow "Carregar banco" atualiza o Supabase.
+name: Atualizar atas
+
+on:
+  schedule:
+    - cron: "0 11 * * 1"   # segundas, 8h de Brasília
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: atualizar-atas
+
+jobs:
+  atualizar:
+    name: Procurar atas novas
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Já existe um PR de atas novas aguardando revisão?
+        id: pendente
+        run: |
+          aberto=$(gh pr list --label "atas novas" --state open --json number --jq 'length')
+          echo "aberto=$aberto" >> "$GITHUB_OUTPUT"
+          if [ "$aberto" != "0" ]; then
+            echo "Já existe um Pull Request de atas novas aberto. Revise-o antes de procurar novamente." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - uses: actions/setup-python@v5
+        if: steps.pendente.outputs.aberto == '0'
+        with:
+          python-version: "3.12"
+
+      - name: Instalar dependências
+        if: steps.pendente.outputs.aberto == '0'
+        run: pip install requests==2.32.3 beautifulsoup4==4.12.3 pdfplumber==0.11.4 python-dotenv==1.0.1
+
+      - name: Procurar, baixar e extrair o texto das atas novas
+        id: detector
+        if: steps.pendente.outputs.aberto == '0'
+        env:
+          RESUMO_ARQUIVO: ${{ runner.temp }}/resumo.md
+        run: python coletores/detector_atas_novas.py --baixar
+
+      - name: Abrir Pull Request para revisão
+        if: steps.pendente.outputs.aberto == '0' && steps.detector.outputs.novas != '0'
+        run: |
+          ramo="atas-novas-$(date +%Y-%m-%d)"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -b "$ramo"
+          git add dados/base_dados/pdf_atas_pleno/ dados/configs/index_atas.json
+          git add -f dados/configs/.cache_corpus_atas.json
+          git commit -m "Atas novas do Conselho Pleno ($(date +%d/%m/%Y))"
+          git push origin "$ramo"
+          {
+            cat "$RUNNER_TEMP/resumo.md"
+            echo
+            echo "**Para revisar:** abra cada PDF pelo link de origem e confira número, data e se é mesmo a ata (e não uma apresentação)."
+            echo "Ao fazer o merge, o workflow **Carregar banco** atualiza o Supabase automaticamente."
+            echo
+            echo "_Pull Request aberto automaticamente pelo workflow **Atualizar atas**._"
+          } > "$RUNNER_TEMP/corpo.md"
+          gh pr create --base main --head "$ramo" --title "Atas novas do Conselho Pleno ($(date +%d/%m/%Y))" \
+            --body-file "$RUNNER_TEMP/corpo.md" --label "atas novas"

@@ -59,6 +59,16 @@ npx playwright install chromium
 npx playwright test                                         # relatório: npx playwright show-report
 ```
 
+### Atualização automática das atas
+
+| Workflow | Quando roda | O que faz |
+|---|---|---|
+| **Atualizar atas** (`.github/workflows/atualizar-atas.yml`) | Segundas às 8h e manualmente | `coletores/detector_atas_novas.py` lê o site da Prefeitura, identifica atas novas do Conselho Pleno, baixa os PDFs com o nome padrão, atualiza `index_atas.json` e o cache de texto e **abre um Pull Request** para revisão |
+| **Carregar banco** (`.github/workflows/carregar-banco.yml`) | Ao entrar na `main` qualquer mudança em `dados/configs/` ou no esquema, e manualmente | Executa `scripts/carregar_supabase.py` (precisa do segredo `DATABASE_URL`) |
+
+> O site da Prefeitura muda de formato com frequência e às vezes coloca uma apresentação no lugar da ata, por isso as
+> atas novas passam por revisão humana (Pull Request) antes de irem para o banco.
+
 > O plano gratuito do Render desliga a API após ~15 min sem uso; a primeira consulta seguinte pode levar até 1 minuto
 > (o site mostra um aviso enquanto isso). Para evitar a espera, o workflow `.github/workflows/manter-api-acordada.yml`
 > acessa a API a cada 14 minutos das 7h às 20h (Brasília), e o Painel mostra na hora os últimos dados salvos no navegador.
