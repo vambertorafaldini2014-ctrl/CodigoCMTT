@@ -30,8 +30,11 @@ async def ciclo_de_vida(app: FastAPI):
         from .repositorio import Repositorio
 
         # prepare_threshold=None: compatível com o pooler do Supabase (pgbouncer)
-        pool = ConnectionPool(url, min_size=1, max_size=5, open=True,
-                              kwargs={"prepare_threshold": None}, check=ConnectionPool.check_connection)
+        # timeout curto: se o banco recusar a conexão (ex.: senha trocada), a API responde
+        # com erro em poucos segundos em vez de deixar o visitante esperando
+        pool = ConnectionPool(url, min_size=1, max_size=5, open=True, timeout=8,
+                              kwargs={"prepare_threshold": None, "connect_timeout": 5},
+                              check=ConnectionPool.check_connection)
         _repo = Repositorio(pool)
     yield
     if pool:
@@ -52,6 +55,19 @@ app.add_middleware(
     allow_methods=["GET", "POST"],
     allow_headers=["Content-Type", "Authorization"],
 )
+
+
+@app.exception_handler(Exception)
+async def banco_indisponivel(request, erro):
+    """Falhas de conexão com o banco viram 503 com mensagem clara (o site mostra ao visitante)."""
+    from fastapi.responses import JSONResponse
+    from psycopg import OperationalError
+    from psycopg_pool import PoolTimeout
+
+    if isinstance(erro, (PoolTimeout, OperationalError)):
+        return JSONResponse({"detail": "Banco de dados temporariamente indisponível. Tente novamente em instantes."},
+                            status_code=503)
+    raise erro
 
 
 def get_repo():
