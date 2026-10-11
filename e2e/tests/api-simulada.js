@@ -11,10 +11,15 @@ const linhasAta = Array.from({ length: 50 }, (_, i) =>
 const reunioes = [
   { id: 1, arquivo: '75_2024_Pleno_ordin_ata.pdf', titulo: '75ª Reunião Ordinária', tipo: 'Ordinária',
     data: '2024-11-01', ano: 2024, local: 'Online – Microsoft Teams', total_linhas: 50,
-    tema_principal: 'Mobilidade Ativa e Acessibilidade' },
+    tema_principal: 'Mobilidade Ativa e Acessibilidade', orgao: 'Conselho Pleno' },
   { id: 2, arquivo: 'extra_07_2024_Pleno_ata.pdf', titulo: 'Reunião Extraordinária', tipo: 'Extraordinária',
-    data: '2024-11-22', ano: 2024, local: null, total_linhas: 40, tema_principal: null },
-].map((r) => ({ ...r, url_pdf: PDF(r.arquivo) }));
+    data: '2024-11-22', ano: 2024, local: null, total_linhas: 40, tema_principal: null, orgao: 'Conselho Pleno' },
+  { id: 3, arquivo: 'CT_Bicicleta_2026-09-02_ata', titulo: 'Reunião Ordinária — Câmara Temática de Bicicleta', tipo: 'Ordinária',
+    data: '2019-12-01', ano: 2019, local: null, total_linhas: 30, tema_principal: 'Mobilidade Ativa e Acessibilidade',
+    orgao: 'Câmara Temática de Bicicleta', data_aproximada: true, url_origem: 'https://prefeitura.sp.gov.br/documents/ct-bike-pdf' },
+].map((r) => ({ ...r, url_pdf: r.url_origem ?? PDF(r.arquivo) }));
+const ORGAOS = [{ orgao: 'Conselho Pleno', reunioes: 2, desde: 2024, ate: 2024 },
+  { orgao: 'Câmara Temática de Bicicleta', reunioes: 1, desde: 2019, ate: 2019 }];
 
 function busca(params) {
   const q = params.get('q') ?? '';
@@ -44,6 +49,7 @@ const estatisticas = {
     { ano: 2024, tema: 'Transporte Público Coletivo', ocorrencias: 350 }],
   genero_por_mandato: [{ mandato: '2022fev 2024fev', feminino: 45, masculino: 62, nao_informado: 0, cadeiras: 64 },
     { mandato: '2024mar 2026jan', feminino: 41, masculino: 73, nao_informado: 1, cadeiras: 67 }],
+  reunioes_por_orgao: [{ orgao: 'Conselho Pleno', reunioes: 97, anos: 14 }, { orgao: 'Câmara Temática de Bicicleta', reunioes: 92, anos: 10 }],
   segmentos_mandato_atual: [{ segmento: 'ÓRGÃOS MUNICIPAIS', cadeiras: 20 }, { segmento: 'SOCIEDADE CIVIL - REGIONAIS', cadeiras: 12 }],
 };
 
@@ -108,7 +114,11 @@ export async function simularApi(page) {
     if (caminho === '/saude') return json({ status: 'ok', banco: true });
     if (caminho === '/anos') return json([2024, 2023]);
     if (caminho === '/busca') return json(busca(url.searchParams));
-    if (caminho === '/reunioes') return json(reunioes);
+    if (caminho === '/orgaos') return json(ORGAOS);
+    if (caminho === '/reunioes') {
+      const orgao = url.searchParams.get('orgao');
+      return json(reunioes.filter((r) => !orgao || r.orgao === orgao));
+    }
     if (caminho === '/reunioes/1') {
       return json({ ...reunioes[0], mandato: '2024mar 2026jan', linhas: linhasAta,
         temas: [{ tema: 'Mobilidade Ativa e Acessibilidade', ocorrencias: 12 }] });

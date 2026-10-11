@@ -43,11 +43,12 @@ async function carregar() {
     titulo.textContent = `${r.titulo} — ${formatarData(r.data)}`;
 
     const campos = [
-      ['Data', formatarData(r.data)],
+      ['Órgão', r.orgao || 'Conselho Pleno'],
+      ['Data', formatarData(r.data) + (r.data_aproximada ? ' (o site informava só o mês)' : '')],
       ['Tipo', r.tipo],
       ['Local', r.local || 'Não informado'],
       ['Mandato', r.mandato ? rotuloMandato(r.mandato) : '—'],
-      ['Arquivo', `<a href="${escaparHtml(r.url_pdf)}" target="_blank" rel="noopener">${escaparHtml(r.arquivo)}<span class="visualmente-oculto"> (PDF, abre em nova aba)</span></a>`],
+      ['Arquivo', `<a href="${escaparHtml(r.url_pdf)}" target="_blank" rel="noopener">${r.url_origem ? 'PDF no site da Prefeitura' : escaparHtml(r.arquivo)}<span class="visualmente-oculto"> (PDF, abre em nova aba)</span></a>`],
     ];
     document.getElementById('metadados').innerHTML = campos
       .map(([k, v]) => `<dt><strong>${k}</strong></dt><dd style="margin:0">${k === 'Arquivo' ? v : escaparHtml(v)}</dd>`).join('');

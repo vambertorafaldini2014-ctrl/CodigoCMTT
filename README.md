@@ -63,7 +63,7 @@ npx playwright test                                         # relatório: npx pl
 
 | Workflow | Quando roda | O que faz |
 |---|---|---|
-| **Atualizar atas** (`.github/workflows/atualizar-atas.yml`) | Segundas às 8h e manualmente | `coletores/detector_atas_novas.py` lê o site da Prefeitura, identifica atas novas do Conselho Pleno, baixa os PDFs com o nome padrão, atualiza `index_atas.json` e o cache de texto e **abre um Pull Request** para revisão |
+| **Atualizar atas** (`.github/workflows/atualizar-atas.yml`) | Segundas às 8h e manualmente | `coletores/detector_atas_novas.py` identifica atas novas do Conselho Pleno, baixa os PDFs com o nome padrão e atualiza `index_atas.json` e o cache; `coletores/coletor_camaras.py` faz o mesmo para as **Câmaras Temáticas** (guarda só o texto e o link oficial do PDF, em `index_atas_camaras.json` e `.cache_corpus_camaras.json`). Se houver novidade, **abre um Pull Request** para revisão |
 | **Carregar banco** (`.github/workflows/carregar-banco.yml`) | Ao entrar na `main` qualquer mudança em `dados/configs/` ou no esquema, e manualmente | Executa `scripts/carregar_supabase.py` (precisa do segredo `DATABASE_URL`) |
 
 > O site da Prefeitura muda de formato com frequência e às vezes coloca uma apresentação no lugar da ata, por isso as

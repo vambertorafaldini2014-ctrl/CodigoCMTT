@@ -45,6 +45,12 @@ create table if not exists reunioes (
     mandato_id  int references mandatos(id) on delete set null
 );
 create index if not exists idx_reunioes_ano on reunioes (ano);
+-- Câmaras Temáticas: o órgão da reunião, o link oficial do PDF (as atas das Câmaras não ficam
+-- no repositório) e se a data é aproximada (site antigo só informava mês/ano)
+alter table reunioes add column if not exists orgao text not null default 'Conselho Pleno';
+alter table reunioes add column if not exists url_origem text;
+alter table reunioes add column if not exists data_aproximada boolean not null default false;
+create index if not exists idx_reunioes_orgao on reunioes (orgao);
 
 -- Texto das atas, linha a linha (alimenta a busca)
 create table if not exists linhas_ata (
