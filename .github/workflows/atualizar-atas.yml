@@ -1,4 +1,4 @@
-# Procura atas novas do Conselho Pleno no site da Prefeitura toda segunda-feira.
+# Procura atas novas do Conselho Pleno e das Câmaras Temáticas no site da Prefeitura toda segunda-feira.
 # Se encontrar, baixa os PDFs, atualiza o índice e o texto (cache) e abre um Pull Request
 # para a equipe conferir. Ao aprovar o PR, o workflow "Carregar banco" atualiza o Supabase.
 name: Atualizar atas
@@ -50,8 +50,15 @@ jobs:
           RESUMO_ARQUIVO: ${{ runner.temp }}/resumo.md
         run: python coletores/detector_atas_novas.py --baixar
 
+      - name: Procurar atas novas das Câmaras Temáticas (só texto e link oficial)
+        id: camaras
+        if: steps.pendente.outputs.aberto == '0'
+        env:
+          RESUMO_ARQUIVO: ${{ runner.temp }}/resumo.md
+        run: python coletores/coletor_camaras.py --baixar
+
       - name: Abrir Pull Request para revisão
-        if: steps.pendente.outputs.aberto == '0' && steps.detector.outputs.novas != '0'
+        if: steps.pendente.outputs.aberto == '0' && (steps.detector.outputs.novas != '0' || steps.camaras.outputs.novas_camaras != '0')
         run: |
           ramo="atas-novas-$(date +%Y-%m-%d)"
           git config user.name "github-actions[bot]"
@@ -59,7 +66,9 @@ jobs:
           git checkout -b "$ramo"
           git add dados/base_dados/pdf_atas_pleno/ dados/configs/index_atas.json
           git add -f dados/configs/.cache_corpus_atas.json
-          git commit -m "Atas novas do Conselho Pleno ($(date +%d/%m/%Y))"
+          git add dados/configs/index_atas_camaras.json
+          git add -f dados/configs/.cache_corpus_camaras.json
+          git commit -m "Atas novas do CMTT ($(date +%d/%m/%Y))"
           git push origin "$ramo"
           {
             cat "$RUNNER_TEMP/resumo.md"
@@ -69,5 +78,5 @@ jobs:
             echo
             echo "_Pull Request aberto automaticamente pelo workflow **Atualizar atas**._"
           } > "$RUNNER_TEMP/corpo.md"
-          gh pr create --base main --head "$ramo" --title "Atas novas do Conselho Pleno ($(date +%d/%m/%Y))" \
+          gh pr create --base main --head "$ramo" --title "Atas novas do CMTT ($(date +%d/%m/%Y))" \
             --body-file "$RUNNER_TEMP/corpo.md" --label "atas novas"

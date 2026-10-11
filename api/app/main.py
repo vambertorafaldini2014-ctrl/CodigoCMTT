@@ -82,7 +82,8 @@ def url_pdf(arquivo: str) -> str:
 
 
 def _com_pdf(item: dict) -> dict:
-    item["url_pdf"] = url_pdf(item["arquivo"])
+    # Atas das Câmaras Temáticas não ficam no repositório: o link é o PDF oficial da Prefeitura
+    item["url_pdf"] = item.get("url_origem") or url_pdf(item["arquivo"])
     return item
 
 
@@ -108,13 +109,19 @@ def anos(repo=Depends(get_repo)) -> list[int]:
     return repo.anos()
 
 
-@app.get("/api/reunioes", tags=["Reuniões"], summary="Lista as reuniões do Conselho Pleno")
+@app.get("/api/orgaos", tags=["Reuniões"], summary="Conselho Pleno e Câmaras Temáticas com atas")
+def orgaos(repo=Depends(get_repo)):
+    return repo.orgaos()
+
+
+@app.get("/api/reunioes", tags=["Reuniões"], summary="Lista as reuniões do Pleno e das Câmaras Temáticas")
 def listar_reunioes(
     ano: int | None = Query(None, ge=2000, le=2100),
     tipo: str | None = Query(None, pattern="^(Ordinária|Extraordinária|Técnica)$"),
+    orgao: str | None = Query(None, max_length=100, description="Ex.: Conselho Pleno, Câmara Temática de Bicicleta"),
     repo=Depends(get_repo),
 ):
-    return [_com_pdf(r) for r in repo.listar_reunioes(ano, tipo)]
+    return [_com_pdf(r) for r in repo.listar_reunioes(ano, tipo, orgao)]
 
 
 @app.get("/api/reunioes/{reuniao_id}", tags=["Reuniões"], summary="Detalhes e texto de uma ata")
@@ -134,6 +141,7 @@ def buscar(
                                   "exato: o texto digitado aparece na linha."),
     ordem: str = Query("relevancia", pattern="^(relevancia|data)$"),
     ano: int | None = Query(None, ge=2000, le=2100),
+    orgao: str | None = Query(None, max_length=100),
     pagina: int = Query(1, ge=1, le=1000),
     por_pagina: int = Query(50, ge=1, le=200),
     repo=Depends(get_repo),
@@ -145,7 +153,7 @@ def buscar(
     # Busca só com palavras muito comuns ("de", "o"...) não tem radicais: cai para o modo exato
     if modo == "inteligente" and not repo.consulta_valida(consulta):
         modo = "exato"
-    res = repo.buscar(modo=modo, consulta=consulta, padrao=padrao, ordem=ordem, ano=ano,
+    res = repo.buscar(modo=modo, consulta=consulta, padrao=padrao, ordem=ordem, ano=ano, orgao=orgao,
                       limite=por_pagina, deslocamento=(pagina - 1) * por_pagina)
     res["resultados"] = [_com_pdf(r) for r in res["resultados"]]
     radicais = repo.radicais(palavras_para_destaque(q)) if modo == "inteligente" else []

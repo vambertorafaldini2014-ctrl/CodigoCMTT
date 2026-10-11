@@ -101,7 +101,7 @@ test('cada gráfico do painel tem uma tabela equivalente', async ({ page }) => {
   await page.goto('/painel.html');
   await page.locator('#indicadores li').first().waitFor();
   const graficos = page.locator('section.grafico');
-  await expect(graficos).toHaveCount(5);
+  await expect(graficos).toHaveCount(6);
   for (const secao of await graficos.all()) {
     await secao.getByText('Ver dados em tabela').click();
     await expect(secao.getByRole('table')).toBeVisible();

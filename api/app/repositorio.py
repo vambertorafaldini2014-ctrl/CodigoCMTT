@@ -25,25 +25,33 @@ class Repositorio:
         return [r["ano"] for r in self._todos(
             "select distinct ano from reunioes where ano is not null order by ano desc")]
 
-    def listar_reunioes(self, ano: int | None = None, tipo: str | None = None) -> list[dict]:
+    def orgaos(self) -> list[dict]:
+        return self._todos(
+            """select orgao, count(*) as reunioes, min(ano) as desde, max(ano) as ate from reunioes
+                group by orgao order by orgao <> 'Conselho Pleno', orgao""")
+
+    def listar_reunioes(self, ano: int | None = None, tipo: str | None = None, orgao: str | None = None) -> list[dict]:
         return self._todos(
             """
-            select r.id, r.arquivo, r.titulo, r.tipo, r.data, r.ano, r.local,
+            select r.id, r.arquivo, r.titulo, r.tipo, r.data, r.ano, r.local, r.orgao, r.url_origem,
+                   r.data_aproximada,
                    (select count(*) from linhas_ata l where l.reuniao_id = r.id) as total_linhas,
                    (select t.tema from temas_reuniao t where t.reuniao_id = r.id
                      order by t.ocorrencias desc limit 1) as tema_principal
               from reunioes r
              where (%(ano)s::int is null or r.ano = %(ano)s)
                and (%(tipo)s::text is null or r.tipo = %(tipo)s)
+               and (%(orgao)s::text is null or r.orgao = %(orgao)s)
              order by r.data desc nulls last, r.id desc
             """,
-            {"ano": ano, "tipo": tipo},
+            {"ano": ano, "tipo": tipo, "orgao": orgao},
         )
 
     def obter_reuniao(self, reuniao_id: int) -> dict | None:
         reuniao = self._um(
             """
-            select r.id, r.arquivo, r.titulo, r.tipo, r.data, r.ano, r.local, m.codigo as mandato
+            select r.id, r.arquivo, r.titulo, r.tipo, r.data, r.ano, r.local, r.orgao, r.url_origem,
+                   r.data_aproximada, m.codigo as mandato
               from reunioes r left join mandatos m on m.id = r.mandato_id
              where r.id = %s
             """,
@@ -70,7 +78,7 @@ class Repositorio:
             "select distinct unnest(tsvector_to_array(to_tsvector('portuguese', %s))) as lexema", (palavras,))]
 
     def buscar(self, *, modo: str, consulta: str, padrao: str | None, ordem: str,
-               ano: int | None, limite: int, deslocamento: int) -> dict:
+               ano: int | None, limite: int, deslocamento: int, orgao: str | None = None) -> dict:
         """
         modo "inteligente": busca por radicais em português (websearch_to_tsquery);
         modo "exato": o texto digitado aparece na linha (LIKE, ignorando acentos).
@@ -82,19 +90,21 @@ class Repositorio:
               from linhas_ata l join reunioes r on r.id = l.reuniao_id
              where {condicao}
                and (%(ano)s::int is null or r.ano = %(ano)s)
+               and (%(orgao)s::text is null or r.orgao = %(orgao)s)
         """
         ordenacao = "r.data desc nulls last, l.ordem"
         if ordem == "relevancia":
             ordenacao = ("ts_rank_cd(l.busca, websearch_to_tsquery('portuguese', %(consulta)s)) desc, "
                          + ordenacao)
-        params = {"consulta": consulta, "padrao": padrao, "ano": ano,
+        params = {"consulta": consulta, "padrao": padrao, "ano": ano, "orgao": orgao,
                   "limite": limite, "deslocamento": deslocamento}
         total = self._um("select count(*) as total " + filtro, params)["total"]
         por_ano = self._todos(
             "select r.ano, count(*) as ocorrencias " + filtro + " group by r.ano order by r.ano", params)
         resultados = self._todos(
             """
-            select r.id as reuniao_id, r.arquivo, r.titulo, r.data, r.ano, l.ordem, l.texto
+            select r.id as reuniao_id, r.arquivo, r.titulo, r.data, r.ano, r.orgao, r.url_origem,
+                   l.ordem, l.texto
             """ + filtro + f"""
              order by {ordenacao}
              limit %(limite)s offset %(deslocamento)s
@@ -172,7 +182,13 @@ class Repositorio:
                 select ano,
                        count(*) filter (where tipo = 'Ordinária') as ordinarias,
                        count(*) filter (where tipo <> 'Ordinária') as extraordinarias
-                  from reunioes where ano is not null group by ano order by ano
+                  from reunioes where ano is not null and orgao = 'Conselho Pleno' group by ano order by ano
+                """
+            ),
+            "reunioes_por_orgao": self._todos(
+                """
+                select orgao, count(*) as reunioes, count(distinct ano) as anos
+                  from reunioes group by orgao order by reunioes desc
                 """
             ),
             "temas": self._todos(
