@@ -152,7 +152,9 @@ main { padding-block: 2rem 3rem; }
 main:focus { outline: none; }
 
 .rodape { border-top: 1px solid var(--borda); background: var(--superficie); color: var(--texto-suave); font-size: .9rem; }
-.rodape .container { padding-block: 1.5rem; display: flex; flex-wrap: wrap; gap: 1rem; justify-content: space-between; }
+.rodape .container { padding-block: 1.5rem; display: grid; gap: .5rem; }
+.rodape p { margin: 0; max-width: 75ch; }
+.rodape strong { color: var(--texto); }
 
 h1 { font-size: clamp(1.5rem, 3vw, 2rem); line-height: 1.25; margin: 0 0 .5rem; }
 h2 { font-size: 1.35rem; margin: 2rem 0 .75rem; }
