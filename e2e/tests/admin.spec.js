@@ -18,6 +18,9 @@ test('administrador entra, vê os feedbacks, filtra e sai', async ({ page }) => 
   await entrar(page, EMAIL_ADMIN, 'senha-correta');
 
   await expect(page.getByText(`Conectado como ${EMAIL_ADMIN}`)).toBeVisible();
+  // Depois de entrar, o formulário de login some da tela
+  await expect(page.locator('#form-login')).toBeHidden();
+  await expect(page.getByLabel('Senha')).toBeHidden();
   await expect(page.getByRole('list', { name: 'Resumo dos feedbacks' })).toContainText('4,33');
   const linhas = page.locator('#corpo-feedbacks tr');
   await expect(linhas).toHaveCount(4);
@@ -65,4 +68,18 @@ test('tela de login e painel administrativo sem violações WCAG 2.1 AA', async 
   await page.getByRole('button', { name: 'Entrar' }).click();
   await expect(page.locator('#corpo-feedbacks tr')).toHaveCount(4);
   expect((await new AxeBuilder({ page }).withTags(regras).analyze()).violations).toEqual([]);
+});
+
+test('campos de e-mail e senha têm o mesmo tamanho e estilo', async ({ page }) => {
+  await page.goto('/admin.html');
+  const email = page.getByLabel('E-mail');
+  const senha = page.getByLabel('Senha');
+  await email.waitFor();
+  const [caixaEmail, caixaSenha] = [await email.boundingBox(), await senha.boundingBox()];
+  expect(caixaSenha.width).toBeCloseTo(caixaEmail.width, 0);
+  expect(caixaSenha.height).toBeCloseTo(caixaEmail.height, 0);
+  for (const prop of ['border-top-width', 'border-radius', 'padding-left', 'font-size']) {
+    expect(await senha.evaluate((el, p) => getComputedStyle(el).getPropertyValue(p), prop))
+      .toBe(await email.evaluate((el, p) => getComputedStyle(el).getPropertyValue(p), prop));
+  }
 });

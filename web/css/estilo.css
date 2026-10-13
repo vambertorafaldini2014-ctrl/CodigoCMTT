@@ -72,6 +72,9 @@ html:not([data-contraste="alto"]) .logos { background: #fff; }
 
 *, *::before, *::after { box-sizing: border-box; }
 
+/* Elementos com o atributo "hidden" ficam sempre ocultos, mesmo que uma classe defina display */
+[hidden] { display: none !important; }
+
 html { font-size: 100%; }
 body {
   margin: 0;
@@ -174,7 +177,7 @@ h3 { font-size: 1.1rem; margin: 1.25rem 0 .5rem; }
 label { font-weight: 600; }
 .dica { font-size: .875rem; color: var(--texto-suave); margin: 0; }
 
-input[type="search"], input[type="text"], select, textarea {
+input[type="search"], input[type="text"], input[type="password"], input[type="email"], select, textarea {
   font: inherit; color: var(--texto); background: var(--superficie);
   border: 2px solid var(--borda-campo); border-radius: 8px; padding: .6rem .75rem; width: 100%;
 }
