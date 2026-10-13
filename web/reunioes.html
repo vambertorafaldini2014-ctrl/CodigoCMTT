@@ -66,14 +66,18 @@
 
   <main id="conteudo" tabindex="-1">
     <div class="container">
-      <h1>Reuniões do Conselho Pleno</h1>
-      <p class="subtitulo">Todas as atas disponíveis, com acesso ao texto e ao PDF original.</p>
+      <h1>Reuniões</h1>
+      <p class="subtitulo">Atas do Conselho Pleno e das Câmaras Temáticas, com acesso ao texto e ao PDF original.</p>
 
       <form id="form-filtros" class="cartao formulario" aria-label="Filtrar reuniões">
         <div class="linha-form">
           <div class="campo">
             <label for="filtro-ano">Ano</label>
             <select id="filtro-ano"><option value="">Todos os anos</option></select>
+          </div>
+          <div class="campo">
+            <label for="filtro-orgao">Órgão</label>
+            <select id="filtro-orgao"><option value="">Pleno e Câmaras Temáticas</option></select>
           </div>
           <div class="campo">
             <label for="filtro-tipo">Tipo de reunião</label>
@@ -96,6 +100,7 @@
             <tr>
               <th scope="col">Data</th>
               <th scope="col">Reunião</th>
+              <th scope="col">Órgão</th>
               <th scope="col">Local</th>
               <th scope="col">Tema mais citado</th>
               <th scope="col">PDF</th>

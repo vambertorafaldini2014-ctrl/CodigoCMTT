@@ -1,9 +1,10 @@
 """
 ETL: carrega no PostgreSQL (Supabase) os dados já processados pelo pipeline local.
 
-Fontes (geradas pelos construtores do projeto):
-  - dados/configs/.cache_corpus_atas.json  -> texto das atas (linhas_ata)
+Fontes (geradas pelos construtores e coletores do projeto):
+  - dados/configs/.cache_corpus_atas.json  -> texto das atas do Conselho Pleno (linhas_ata)
   - dados/configs/index_atas.json          -> datas, títulos e locais (reunioes)
+  - dados/configs/.cache_corpus_camaras.json e index_atas_camaras.json -> atas das Câmaras Temáticas
   - dados/configs/AAAAmmm AAAAmmm.json     -> composição de cada mandato
 
 Uso (na raiz do projeto, com DATABASE_URL no arquivo .env):
@@ -51,6 +52,10 @@ def main():
 
     corpus = ler_json(".cache_corpus_atas.json")
     index = ler_json("index_atas.json")
+    # Câmaras Temáticas (opcional: só existe depois de rodar coletores/coletor_camaras.py)
+    if os.path.exists(os.path.join(CONFIGS, "index_atas_camaras.json")):
+        corpus += ler_json(".cache_corpus_camaras.json")
+        index = {**index, **ler_json("index_atas_camaras.json")}
     arquivos_mandato = sorted(glob.glob(os.path.join(CONFIGS, "[0-9][0-9][0-9][0-9]* *.json")))
 
     with psycopg.connect(url, prepare_threshold=None) as conn:
@@ -100,9 +105,12 @@ def main():
                 local = None
 
             reuniao_id = conn.execute(
-                """insert into reunioes (arquivo, titulo, tipo, data, ano, local, mandato_id)
-                   values (%s, %s, %s, %s, %s, %s, %s) returning id""",
-                (arquivo, titulo, tipo_reuniao(titulo), data, ano, local, mandato_da_data(data))
+                """insert into reunioes (arquivo, titulo, tipo, data, ano, local, mandato_id,
+                                          orgao, url_origem, data_aproximada)
+                   values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s) returning id""",
+                (arquivo, titulo, tipo_reuniao(titulo), data, ano, local, mandato_da_data(data),
+                 meta.get("orgao", "Conselho Pleno"), meta.get("url_origem") if meta.get("orgao") else None,
+                 bool(meta.get("data_aproximada")))
             ).fetchone()[0]
 
             linhas = [l.strip() for l in doc["Linhas"] if l and l.strip()]

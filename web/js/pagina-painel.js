@@ -104,6 +104,14 @@ function desenharTudo() {
     ['Mandato', 'Cadeiras', 'Mulheres', 'Homens', 'Não informado', '% mulheres'],
     gen.map((g, i) => [rotuloMandato(g.mandato), g.cadeiras, g.feminino, g.masculino, g.nao_informado, `${pctF[i]}%`]));
 
+  const orgaos = dados.reunioes_por_orgao ?? [];
+  grafico('g-orgaos', {
+    type: 'bar',
+    data: { labels: orgaos.map(o => quebrarRotulo(o.orgao)), datasets: [{ label: 'Atas', data: orgaos.map(o => o.reunioes), backgroundColor: cores.serie[2] }] },
+    options: { indexAxis: 'y', plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true }, y: { ticks: { autoSkip: false } } } },
+  });
+  tabela('d-orgaos', 'Atas por órgão', ['Órgão', 'Atas', 'Anos com reunião'], orgaos.map(o => [o.orgao, o.reunioes, o.anos]));
+
   grafico('g-segmentos', {
     type: 'bar',
     data: { labels: seg.map(s => quebrarRotulo(s.segmento)), datasets: [{ label: 'Cadeiras', data: seg.map(s => s.cadeiras), backgroundColor: cores.serie[3] }] },

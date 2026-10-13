@@ -8,6 +8,7 @@ const campoTermo = document.getElementById('campo-termo');
 const campoAno = document.getElementById('campo-ano');
 const campoModo = document.getElementById('campo-modo');
 const campoOrdem = document.getElementById('campo-ordem');
+const campoOrgao = document.getElementById('campo-orgao');
 const status = document.getElementById('status');
 const secaoResultados = document.getElementById('secao-resultados');
 const secaoTendencia = document.getElementById('secao-tendencia');
@@ -17,11 +18,11 @@ const btnAnterior = document.getElementById('botao-anterior');
 const btnProxima = document.getElementById('botao-proxima');
 const infoPagina = document.getElementById('info-pagina');
 
-let estado = { q: '', ano: '', modo: 'inteligente', ordem: 'relevancia', pagina: 1, total: 0 };
+let estado = { q: '', ano: '', orgao: '', modo: 'inteligente', ordem: 'relevancia', pagina: 1, total: 0 };
 
 /** Parâmetros da busca enviados à API (e guardados na URL). */
 function filtros() {
-  return { q: estado.q, ano: estado.ano, modo: estado.modo, ordem: estado.ordem };
+  return { q: estado.q, ano: estado.ano, orgao: estado.orgao, modo: estado.modo, ordem: estado.ordem };
 }
 
 /** Destaque no texto: por radicais na busca inteligente, pelo texto digitado na busca exata. */
@@ -42,6 +43,11 @@ async function carregarAnos() {
     for (const ano of anos) campoAno.add(new Option(ano, ano));
     campoAno.value = estado.ano;
   } catch { /* o filtro de ano é opcional */ }
+  try {
+    const orgaos = await api.orgaos();
+    for (const o of orgaos) campoOrgao.add(new Option(`${o.orgao} (${o.reunioes})`, o.orgao));
+    campoOrgao.value = estado.orgao;
+  } catch { /* o filtro de órgão é opcional */ }
 }
 
 function desenharTendencia(porAno) {
@@ -79,7 +85,7 @@ function desenharResultados(dados) {
   lista.innerHTML = dados.resultados.map(r => `
     <li class="resultado">
       <h3><a href="reuniao.html?id=${r.reuniao_id}&amp;${destaqueAta}#linha-${r.ordem}">${escaparHtml(r.titulo)}</a></h3>
-      <p class="meta">${formatarData(r.data)} · linha ${r.ordem}</p>
+      <p class="meta">${r.orgao && r.orgao !== 'Conselho Pleno' ? `${escaparHtml(r.orgao)} · ` : ''}${formatarData(r.data)} · linha ${r.ordem}</p>
       <blockquote>${realce(r.texto, dados)}</blockquote>
       <div class="acoes">
         <a href="${escaparHtml(r.url_pdf)}" target="_blank" rel="noopener">Abrir PDF original<span class="visualmente-oculto"> (abre em nova aba)</span></a>
@@ -130,15 +136,15 @@ async function pesquisar({ focarResultados = false } = {}) {
 
 form.addEventListener('submit', (e) => {
   e.preventDefault();
-  estado = { ...estado, q: campoTermo.value.trim(), ano: campoAno.value, modo: campoModo.value, ordem: campoOrdem.value, pagina: 1 };
+  estado = { ...estado, q: campoTermo.value.trim(), ano: campoAno.value, orgao: campoOrgao.value, modo: campoModo.value, ordem: campoOrdem.value, pagina: 1 };
   pesquisar();
 });
 
 // Trocar o tipo de busca ou a ordem refaz a pesquisa atual
-for (const campo of [campoModo, campoOrdem]) {
+for (const campo of [campoModo, campoOrdem, campoOrgao]) {
   campo.addEventListener('change', () => {
     if (!estado.q) return;
-    estado = { ...estado, modo: campoModo.value, ordem: campoOrdem.value, pagina: 1 };
+    estado = { ...estado, orgao: campoOrgao.value, modo: campoModo.value, ordem: campoOrdem.value, pagina: 1 };
     pesquisar();
   });
 }
@@ -160,7 +166,7 @@ document.getElementById('botao-csv').addEventListener('click', async (e) => {
       if (linhas.length >= dados.total) break;
     }
     const csv = paraCsv(linhas, [
-      { campo: 'data', titulo: 'Data' }, { campo: 'titulo', titulo: 'Reunião' },
+      { campo: 'data', titulo: 'Data' }, { campo: 'orgao', titulo: 'Órgão' }, { campo: 'titulo', titulo: 'Reunião' },
       { campo: 'ordem', titulo: 'Linha' }, { campo: 'texto', titulo: 'Contexto' },
       { campo: 'url_pdf', titulo: 'Link do PDF' },
     ]);
@@ -183,6 +189,7 @@ window.addEventListener('cmtt:tema', () => { if (grafico) desenharTendencia(ulti
 const params = new URLSearchParams(location.search);
 estado.q = params.get('q') || '';
 estado.ano = params.get('ano') || '';
+estado.orgao = params.get('orgao') || '';
 estado.pagina = Number(params.get('pagina')) || 1;
 if (params.get('modo') === 'exato') estado.modo = 'exato';
 if (params.get('ordem') === 'data') estado.ordem = 'data';

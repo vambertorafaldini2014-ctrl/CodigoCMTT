@@ -3,6 +3,7 @@ import { escaparHtml, formatarData } from './util.js';
 
 const filtroAno = document.getElementById('filtro-ano');
 const filtroTipo = document.getElementById('filtro-tipo');
+const filtroOrgao = document.getElementById('filtro-orgao');
 const corpo = document.getElementById('corpo-tabela');
 const legenda = document.getElementById('legenda-tabela');
 const status = document.getElementById('status');
@@ -11,12 +12,13 @@ async function carregar() {
   status.textContent = 'Carregando reuniões…';
   status.className = 'status';
   try {
-    const reunioes = await api.reunioes({ ano: filtroAno.value, tipo: filtroTipo.value });
+    const reunioes = await api.reunioes({ ano: filtroAno.value, tipo: filtroTipo.value, orgao: filtroOrgao.value });
     corpo.innerHTML = reunioes.map(r => `
       <tr>
-        <td>${formatarData(r.data)}</td>
+        <td>${formatarData(r.data)}${r.data_aproximada ? '<br><small>(mês aproximado)</small>' : ''}</td>
         <td><a href="reuniao.html?id=${r.id}">${escaparHtml(r.titulo)}</a>
-          ${r.tipo !== 'Ordinária' ? `<br><small>${escaparHtml(r.tipo)}</small>` : ''}</td>
+          ${r.tipo !== 'Ordinária' && r.orgao === 'Conselho Pleno' ? `<br><small>${escaparHtml(r.tipo)}</small>` : ''}</td>
+        <td>${escaparHtml(r.orgao || 'Conselho Pleno')}</td>
         <td>${escaparHtml(r.local || 'Não informado')}</td>
         <td>${escaparHtml(r.tema_principal || '—')}</td>
         <td><a href="${escaparHtml(r.url_pdf)}" target="_blank" rel="noopener">PDF<span class="visualmente-oculto"> da ${escaparHtml(r.titulo)} (abre em nova aba)</span></a></td>
@@ -31,6 +33,8 @@ async function carregar() {
 
 filtroAno.addEventListener('change', carregar);
 filtroTipo.addEventListener('change', carregar);
+filtroOrgao.addEventListener('change', carregar);
 
 api.anos().then(anos => anos.forEach(a => filtroAno.add(new Option(a, a)))).catch(() => {});
+api.orgaos().then(lista => lista.forEach(o => filtroOrgao.add(new Option(`${o.orgao} (${o.reunioes})`, o.orgao)))).catch(() => {});
 carregar();

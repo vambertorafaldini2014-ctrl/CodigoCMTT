@@ -18,7 +18,11 @@ class RepoFalso:
     def anos(self):
         return [2025, 2024]
 
-    def listar_reunioes(self, ano, tipo):
+    def orgaos(self):
+        return [{"orgao": "Conselho Pleno", "reunioes": 97, "desde": 2013, "ate": 2026},
+                {"orgao": "Câmara Temática de Bicicleta", "reunioes": 92, "desde": 2017, "ate": 2026}]
+
+    def listar_reunioes(self, ano, tipo, orgao=None):
         dados = [
             {"id": 1, "arquivo": "01_2013_Pleno_ordin_ata.pdf", "titulo": "1ª Reunião Ordinária",
              "tipo": "Ordinária", "data": date(2013, 8, 2), "ano": 2013, "local": "Biblioteca",
@@ -26,8 +30,16 @@ class RepoFalso:
             {"id": 2, "arquivo": "extra_01_2016_Pleno_ata.pdf", "titulo": "Reunião Extraordinária",
              "tipo": "Extraordinária", "data": date(2016, 11, 23), "ano": 2016, "local": None,
              "total_linhas": 40, "tema_principal": None},
+            {"id": 3, "arquivo": "CT_Bicicleta_2026-09-02_ata", "titulo": "Reunião Ordinária — Câmara Temática de Bicicleta",
+             "tipo": "Ordinária", "data": date(2026, 9, 2), "ano": 2026, "local": None,
+             "orgao": "Câmara Temática de Bicicleta", "url_origem": "https://prefeitura.sp.gov.br/documents/ct-bike-pdf",
+             "total_linhas": 30, "tema_principal": None},
         ]
-        return [d for d in dados if (ano is None or d["ano"] == ano) and (tipo is None or d["tipo"] == tipo)]
+        for d in dados:
+            d.setdefault("orgao", "Conselho Pleno")
+            d.setdefault("url_origem", None)
+        return [d for d in dados if (ano is None or d["ano"] == ano) and (tipo is None or d["tipo"] == tipo)
+                and (orgao is None or d["orgao"] == orgao)]
 
     def obter_reuniao(self, reuniao_id):
         if reuniao_id != 1:
@@ -104,7 +116,7 @@ def test_anos(cliente):
 
 def test_listar_reunioes_inclui_link_do_pdf(cliente):
     dados = cliente.get("/api/reunioes").json()
-    assert len(dados) == 2
+    assert len(dados) == 3
     assert dados[0]["url_pdf"].endswith("/dados/base_dados/pdf_atas_pleno/01_2013_Pleno_ordin_ata.pdf")
     assert dados[0]["url_pdf"].startswith("https://raw.githubusercontent.com/")
 
@@ -133,7 +145,7 @@ def test_busca_padrao_e_inteligente_por_relevancia(cliente, repo):
     assert resp.status_code == 200
     assert repo.ultima_busca == {"modo": "inteligente", "consulta": "ciclovias paulista",
                                  "padrao": "%ciclovias%paulista%", "ordem": "relevancia",
-                                 "ano": 2013, "limite": 20, "deslocamento": 40}
+                                 "ano": 2013, "orgao": None, "limite": 20, "deslocamento": 40}
     corpo = resp.json()
     assert corpo["modo"] == "inteligente"
     assert corpo["radicais"] == ["ciclov", "paulis"]
@@ -217,3 +229,19 @@ def test_outros_erros_continuam_500(repo):
         raise ValueError("bug")
     repo.anos = falhar
     assert TestClient(app, raise_server_exceptions=False).get("/api/anos").status_code == 500
+
+
+def test_orgaos(cliente):
+    dados = cliente.get("/api/orgaos").json()
+    assert [o["orgao"] for o in dados] == ["Conselho Pleno", "Câmara Temática de Bicicleta"]
+
+
+def test_reunioes_filtra_por_orgao_e_usa_link_oficial_nas_camaras(cliente):
+    dados = cliente.get("/api/reunioes", params={"orgao": "Câmara Temática de Bicicleta"}).json()
+    assert [d["id"] for d in dados] == [3]
+    assert dados[0]["url_pdf"] == "https://prefeitura.sp.gov.br/documents/ct-bike-pdf"
+
+
+def test_busca_repassa_filtro_de_orgao(cliente, repo):
+    cliente.get("/api/busca", params={"q": "ciclofaixa", "orgao": "Câmara Temática de Bicicleta"})
+    assert repo.ultima_busca["orgao"] == "Câmara Temática de Bicicleta"

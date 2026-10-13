@@ -56,6 +56,7 @@ async function requisitar(caminho, opcoes = {}) {
 
 export const api = {
   anos: () => requisitar('/api/anos'),
+  orgaos: () => requisitar('/api/orgaos'),
   reunioes: (filtros) => requisitar('/api/reunioes' + montarQuery(filtros)),
   reuniao: (id) => requisitar(`/api/reunioes/${encodeURIComponent(id)}`),
   buscar: (params) => requisitar('/api/busca' + montarQuery(params)),

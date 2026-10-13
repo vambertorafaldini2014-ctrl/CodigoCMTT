@@ -68,7 +68,7 @@
   <main id="conteudo" tabindex="-1">
     <div class="container">
       <h1>Busca nas atas do CMTT</h1>
-      <p class="subtitulo">Pesquise palavras, nomes ou assuntos em todas as atas do Conselho Pleno desde 2013.</p>
+      <p class="subtitulo">Pesquise palavras, nomes ou assuntos nas atas do Conselho Pleno (desde 2013) e das Câmaras Temáticas (desde 2017).</p>
 
       <form id="form-busca" class="cartao formulario" role="search" aria-label="Buscar nas atas">
         <div class="linha-form">
@@ -91,6 +91,12 @@
             <select id="campo-modo" name="modo" aria-describedby="dica-termo">
               <option value="inteligente">Inteligente (plurais e variações)</option>
               <option value="exato">Texto exato</option>
+            </select>
+          </div>
+          <div class="campo">
+            <label for="campo-orgao">Órgão</label>
+            <select id="campo-orgao" name="orgao">
+              <option value="">Pleno e Câmaras Temáticas</option>
             </select>
           </div>
           <div class="campo">

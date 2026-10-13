@@ -32,6 +32,8 @@ test('trocar o tipo de busca refaz a pesquisa e atualiza a URL', async ({ page }
   await page.goto('/index.html?q=ciclovias');
   await expect(page.locator('.resultado')).toHaveCount(25);
 
+  await page.getByLabel('Órgão').selectOption('Câmara Temática de Bicicleta');
+  await expect(page).toHaveURL(/orgao=C%C3%A2mara\+Tem%C3%A1tica\+de\+Bicicleta/);
   await page.getByLabel('Tipo de busca').selectOption('exato');
   await expect(page).toHaveURL(/modo=exato/);
   await page.getByLabel('Ordenar por').selectOption('data');
@@ -67,7 +69,12 @@ test('filtro dentro da ata mostra só as linhas com o termo', async ({ page }) =
 test('páginas de reuniões, conselho e painel carregam os dados', async ({ page }) => {
   await page.goto('/reunioes.html');
   await expect(page.getByRole('table')).toContainText('75ª Reunião Ordinária');
-  await expect(page.locator('caption')).toHaveText('2 reuniões encontradas');
+  await expect(page.locator('caption')).toHaveText('3 reuniões encontradas');
+  await page.getByLabel('Órgão').selectOption('Câmara Temática de Bicicleta');
+  await expect(page.locator('caption')).toHaveText('1 reuniões encontradas');
+  const linha = page.locator('#corpo-tabela tr').first();
+  await expect(linha).toContainText('(mês aproximado)');
+  await expect(linha.getByRole('link', { name: /^PDF/ })).toHaveAttribute('href', 'https://prefeitura.sp.gov.br/documents/ct-bike-pdf');
 
   await page.goto('/conselho.html');
   await expect(page.getByRole('heading', { name: 'Mandato mar/2024 a jan/2026' })).toBeVisible();
@@ -75,5 +82,5 @@ test('páginas de reuniões, conselho e painel carregam os dados', async ({ page
 
   await page.goto('/painel.html');
   await expect(page.getByRole('list', { name: 'Indicadores gerais' })).toContainText('52.827');
-  await expect(page.locator('canvas')).toHaveCount(5);
+  await expect(page.locator('canvas')).toHaveCount(6);
 });
