@@ -258,7 +258,7 @@ tbody tr:hover { background: var(--primaria-clara); }
   .menu { width: 100%; }
   /* Uma linha quando cabe; em telas muito estreitas quebra centralizado, sem vazar da tela */
   .menu ul { justify-content: space-evenly; gap: .15rem 0; flex-wrap: wrap; }
-  .menu a { padding: .4rem .45rem; font-size: .9rem; }
+  .menu a { padding: .4rem .35rem; font-size: .88rem; }
   th, td { padding: .5rem .6rem; }
 }
 
