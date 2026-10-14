@@ -256,7 +256,8 @@ tbody tr:hover { background: var(--primaria-clara); }
   .marca-texto strong { font-size: 1.05rem; }
   .marca-texto span { font-size: .8rem; }
   .menu { width: 100%; }
-  .menu ul { justify-content: space-between; gap: 0; flex-wrap: nowrap; }
+  /* Uma linha quando cabe; em telas muito estreitas quebra centralizado, sem vazar da tela */
+  .menu ul { justify-content: space-evenly; gap: .15rem 0; flex-wrap: wrap; }
   .menu a { padding: .4rem .45rem; font-size: .9rem; }
   th, td { padding: .5rem .6rem; }
 }
