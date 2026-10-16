@@ -124,6 +124,24 @@ export function percentualMulheres({ feminino = 0, masculino = 0 } = {}) {
   return total ? Math.round((100 * feminino) / total) : 0;
 }
 
+/**
+ * Textos da dica (tooltip) do gráfico de gênero. Cada parte da barra mostra o próprio percentual
+ * (sobre as pessoas com gênero informado, a mesma base da coluna "% mulheres" da tabela) e o
+ * rodapé resume o mandato inteiro.
+ */
+export function dicaGenero(g, serie) {
+  const { feminino = 0, masculino = 0, nao_informado: naoInformado = 0 } = g ?? {};
+  const informados = feminino + masculino;
+  const pct = (n) => (informados ? Math.round((100 * n) / informados) : 0);
+  const linha = {
+    feminino: `Mulheres: ${formatarNumero(feminino)} (${pct(feminino)}%)`,
+    masculino: `Homens: ${formatarNumero(masculino)} (${pct(masculino)}%)`,
+    nao_informado: `Não informado: ${formatarNumero(naoInformado)} (sem gênero na planilha)`,
+  }[serie] ?? '';
+  const total = informados + naoInformado;
+  return { linha, rodape: `Total: ${formatarNumero(total)} pessoas · ${percentualMulheres(g)}% mulheres` };
+}
+
 /** Quebra um rótulo longo em linhas de até `max` caracteres (o Chart.js desenha arrays como várias linhas). */
 export function quebrarRotulo(texto, max = 24) {
   const linhas = [];

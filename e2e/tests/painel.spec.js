@@ -33,3 +33,26 @@ test('painel mostra os dados salvos imediatamente enquanto atualiza', async ({ p
   liberar();
   await expect(page.locator('#status')).toHaveText('');
 });
+
+test('dica do gráfico de gênero mostra o percentual da parte apontada e o resumo do mandato', async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name === 'celular', 'passar o mouse não se aplica ao celular');
+  await simularApi(page);
+  await page.goto('/painel.html');
+  await page.locator('#indicadores li').first().waitFor();
+  const canvas = page.locator('#g-genero');
+  await canvas.scrollIntoViewIfNeeded();
+
+  // Posição da parte "Homens" (2ª série) do 1º mandato, calculada pelo próprio Chart.js
+  const alvo = await page.evaluate(() => {
+    const barra = Chart.getChart('g-genero').getDatasetMeta(1).data[0];
+    return { x: barra.x, y: (barra.y + barra.base) / 2 };
+  });
+  await canvas.hover({ position: alvo });
+  const dica = await page.evaluate(() => {
+    const t = Chart.getChart('g-genero').tooltip;
+    return { titulo: t.title, linhas: t.body.flatMap((b) => b.lines), rodape: t.footer };
+  });
+  // api-simulada: fev/2022 a fev/2024 → 45 mulheres e 62 homens
+  expect(dica).toEqual({ titulo: ['fev/2022 a fev/2024'], linhas: ['Homens: 62 (58%)'], rodape: ['Total: 107 pessoas · 42% mulheres'] });
+  await page.locator('section.grafico').filter({ has: canvas }).screenshot({ path: testInfo.outputPath('dica-genero.png') });
+});
