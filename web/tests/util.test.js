@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  destacar, destacarRadicais, escaparHtml, formatarData, formatarDataHora, montarQuery, normalizar, palavrasDoTermo, paraCsv, percentualMulheres, quebrarRotulo, rotuloMandato,
+  destacar, destacarRadicais, dicaGenero, escaparHtml, formatarData, formatarDataHora, montarQuery, normalizar, palavrasDoTermo, paraCsv, percentualMulheres, quebrarRotulo, rotuloMandato,
 } from '../js/util.js';
 
 test('escaparHtml neutraliza tags', () => {
@@ -82,6 +82,20 @@ test('quebrarRotulo divide rótulos longos sem cortar palavras', () => {
     ['Transporte Individual', 'Privado (Táxis e', 'Aplicativos)']);
   assert.equal(quebrarRotulo('Curto'), 'Curto');
   assert.equal(quebrarRotulo(''), '');
+});
+
+test('dicaGenero mostra o percentual de cada parte e o resumo do mandato', () => {
+  const mandato = { feminino: 45, masculino: 62, nao_informado: 0 };
+  assert.deepEqual(dicaGenero(mandato, 'feminino'), { linha: 'Mulheres: 45 (42%)', rodape: 'Total: 107 pessoas · 42% mulheres' });
+  assert.equal(dicaGenero(mandato, 'masculino').linha, 'Homens: 62 (58%)');
+});
+
+test('dicaGenero calcula percentuais só entre quem tem gênero informado', () => {
+  const mandato = { feminino: 104, masculino: 70, nao_informado: 2 };
+  assert.equal(dicaGenero(mandato, 'feminino').linha, 'Mulheres: 104 (60%)');
+  assert.equal(dicaGenero(mandato, 'nao_informado').linha, 'Não informado: 2 (sem gênero na planilha)');
+  assert.equal(dicaGenero(mandato).rodape, 'Total: 176 pessoas · 60% mulheres');
+  assert.equal(dicaGenero({}, 'feminino').linha, 'Mulheres: 0 (0%)');
 });
 
 test('rotuloMandato deixa o código legível', () => {

@@ -1,6 +1,9 @@
 import { api } from './api.js';
 import { coresGraficos } from './acessibilidade.js';
-import { escaparHtml, formatarDataHora, formatarNumero, percentualMulheres, quebrarRotulo, rotuloMandato } from './util.js';
+import { dicaGenero, escaparHtml, formatarDataHora, formatarNumero, percentualMulheres, quebrarRotulo, rotuloMandato } from './util.js';
+
+// Ordem das séries no gráfico de gênero (a mesma ordem dos datasets)
+const SERIES_GENERO = ['feminino', 'masculino', 'nao_informado'];
 
 const status = document.getElementById('status');
 const seletorTema = document.getElementById('seletor-tema');
@@ -96,7 +99,14 @@ function desenharTudo() {
       ],
     },
     options: {
-      plugins: { tooltip: { callbacks: { footer: (itens) => `${pctF[itens[0].dataIndex]}% mulheres` } } },
+      plugins: {
+        tooltip: {
+          callbacks: {
+            label: (item) => dicaGenero(gen[item.dataIndex], SERIES_GENERO[item.datasetIndex]).linha,
+            footer: (itens) => dicaGenero(gen[itens[0].dataIndex]).rodape,
+          },
+        },
+      },
       scales: { x: { stacked: true }, y: { stacked: true, beginAtZero: true, ticks: { precision: 0 } } },
     },
   });
