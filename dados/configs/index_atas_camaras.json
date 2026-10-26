@@ -1103,6 +1103,14 @@
     "local": "Online – Plataforma Microsoft Teams",
     "url_origem": "https://capital.sp.gov.br/documents/d/mobilidade/reuniao-camara-tematica-da-mobilidade-a-pe_09_09_2026-pdf"
   },
+  "CT_MobilidadeAPe_2026-09-30_ata": {
+    "orgao": "Câmara Temática de Mobilidade a Pé",
+    "titulo_reuniao": "Reunião Ordinária — Câmara Temática de Mobilidade a Pé",
+    "data_correta": "30/09/2026",
+    "data_aproximada": false,
+    "local": "Online – Plataforma Microsoft Teams",
+    "url_origem": "https://capital.sp.gov.br/documents/d/mobilidade/reuniao-camara-tematica-da-mobilidade-a-pe-30-09-2026-pdf"
+  },
   "CT_Motocicleta_2018-11-13_ata": {
     "orgao": "Câmara Temática de Motocicleta",
     "titulo_reuniao": "Reunião Ordinária — Câmara Temática de Motocicleta",
@@ -1542,6 +1550,14 @@
     "data_aproximada": false,
     "local": "Online – Plataforma Microsoft Teams",
     "url_origem": "https://capital.sp.gov.br/documents/d/mobilidade/reuniao-da-camara-tematica-de-motocicleta-15-04-2026-pdf-1"
+  },
+  "CT_Motocicleta_2026-09-16_ata": {
+    "orgao": "Câmara Temática de Motocicleta",
+    "titulo_reuniao": "Reunião Ordinária — Câmara Temática de Motocicleta",
+    "data_correta": "16/09/2026",
+    "data_aproximada": false,
+    "local": "Online – Plataforma Microsoft Teams",
+    "url_origem": "https://capital.sp.gov.br/documents/d/mobilidade/reuniao-da-camara-tematica-de-motocicleta-16-09-2026-pdf"
   },
   "CT_Taxi_2019-06-25_ata": {
     "orgao": "Câmara Temática de Táxi",
@@ -2182,6 +2198,14 @@
     "data_aproximada": false,
     "local": "Online – Plataforma Microsoft Teams",
     "url_origem": "https://capital.sp.gov.br/documents/d/mobilidade/reuniao-da-camara-tematica-de-transporte-escolar_06_08_2026-pdf"
+  },
+  "CT_TransporteEscolar_2026-09-23_ata": {
+    "orgao": "Câmara Temática de Transporte Escolar",
+    "titulo_reuniao": "Reunião Ordinária — Câmara Temática de Transporte Escolar",
+    "data_correta": "23/09/2026",
+    "data_aproximada": false,
+    "local": "Online – Plataforma Microsoft Teams",
+    "url_origem": "https://capital.sp.gov.br/documents/d/mobilidade/reuniao-da-camara-tematica-de-transporte-escolar-23-09-2026-pdf"
   },
   "CT_TransportePublico_2026-06-17_ata": {
     "orgao": "Câmara Temática do Transporte Público",
